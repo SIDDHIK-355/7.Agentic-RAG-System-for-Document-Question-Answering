@@ -112,21 +112,22 @@ Query ──embed──▶ 768-dim vector ──┘──▶ top-k by cosine sim
    ──▶ original chunk text ──▶ Decision synthesizes a grounded answer
 ```
 
-### How memory retrieval works
+### How retrieval and embeddings work
 
-Every memory read embeds the query and searches FAISS first; if vectors return nothing useful, it falls back to keyword-overlap scoring over `memory.json`, so retrieval degrades gracefully instead of failing silently:
+Every memory read embeds the query and searches FAISS first, falling back to keyword-overlap scoring over `memory.json` when vectors return nothing — retrieval degrades gracefully instead of failing silently. And the agent never talks to an embedding provider directly: it POSTs to the gateway's `/v1/embed`, which prefers local Ollama (`nomic-embed-text`) and transparently falls back to Gemini (`gemini-embedding-001`, pinned to 768 dims) when Ollama is unavailable.
 
-<p align="center">
-  <img src="docs/memory-read-flow.png" alt="Memory read flow: embed query via gateway, FAISS search, keyword-overlap fallback when there are no hits, return ranked items" width="420">
-</p>
-
-### How embeddings are produced
-
-The agent never talks to an embedding provider directly — it POSTs to the gateway's `/v1/embed`, which prefers local Ollama (`nomic-embed-text`) and transparently falls back to Gemini (`gemini-embedding-001`, pinned to 768 dims) when Ollama is unavailable:
-
-<p align="center">
-  <img src="docs/embedding-fallback-sequence.png" alt="Embedding sequence: agent POSTs /v1/embed to gateway V7; if Ollama is available it returns a 768-d vector via nomic-embed-text, otherwise the gateway falls back to gemini-embedding-001 with outputDimensionality=768" width="760">
-</p>
+<table>
+  <tr>
+    <td width="36%" align="center" valign="top">
+      <img src="docs/memory-read-flow.png" alt="Memory read flow: embed query via gateway, FAISS search, keyword-overlap fallback when there are no hits, return ranked items" width="100%"><br>
+      <sub><b>Memory read</b> — FAISS first, keyword fallback</sub>
+    </td>
+    <td width="64%" align="center" valign="top">
+      <img src="docs/embedding-fallback-sequence.png" alt="Embedding sequence: agent POSTs /v1/embed to gateway V7; if Ollama is available it returns a 768-d vector via nomic-embed-text, otherwise the gateway falls back to gemini-embedding-001 with outputDimensionality=768" width="100%"><br>
+      <sub><b>Embedding call</b> — Ollama preferred, Gemini fallback (768-d)</sub>
+    </td>
+  </tr>
+</table>
 
 - **Embeddings are local and free** — Ollama runs `nomic-embed-text` on your machine; a Gemini embedding fallback is configured for when Ollama is unavailable.
 - **Exact search, no approximation** — `IndexFlatIP` does brute-force inner product, which at this corpus scale is both exact and fast.
