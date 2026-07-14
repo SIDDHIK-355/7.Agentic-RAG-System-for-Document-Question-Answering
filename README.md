@@ -131,18 +131,15 @@ The key link between the phases: **the same embedding model** is used for docume
 
 Every memory read embeds the query and searches FAISS first, falling back to keyword-overlap scoring over `memory.json` when vectors return nothing — retrieval degrades gracefully instead of failing silently. And the agent never talks to an embedding provider directly: it POSTs to the gateway's `/v1/embed`, which prefers local Ollama (`nomic-embed-text`) and transparently falls back to Gemini (`gemini-embedding-001`, pinned to 768 dims) when Ollama is unavailable.
 
-<table>
-  <tr>
-    <td align="center" valign="middle">
-      <img src="docs/memory-read-flow.png" alt="Memory read flow: embed query via gateway, FAISS search, keyword-overlap fallback when there are no hits, return ranked items" width="180"><br>
-      <sub><b>Memory read</b> — FAISS first, keyword fallback</sub>
-    </td>
-    <td align="center" valign="middle">
-      <img src="docs/embedding-fallback-sequence.png" alt="Embedding sequence: agent POSTs /v1/embed to gateway V7; if Ollama is available it returns a 768-d vector via nomic-embed-text, otherwise the gateway falls back to gemini-embedding-001 with outputDimensionality=768" width="630"><br>
-      <sub><b>Embedding call</b> — Ollama preferred, Gemini fallback (768-d)</sub>
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <img src="docs/memory-read-flow.png" alt="Memory read flow: embed query via gateway, FAISS search, keyword-overlap fallback when there are no hits, return ranked items" width="420"><br>
+  <sub><b>Memory read</b> — FAISS first, keyword fallback</sub>
+</p>
+
+<p align="center">
+  <img src="docs/embedding-fallback-sequence.png" alt="Embedding sequence: agent POSTs /v1/embed to gateway V7; if Ollama is available it returns a 768-d vector via nomic-embed-text, otherwise the gateway falls back to gemini-embedding-001 with outputDimensionality=768" width="820"><br>
+  <sub><b>Embedding call</b> — Ollama preferred, Gemini fallback (768-d)</sub>
+</p>
 
 - **Embeddings are local and free** — Ollama runs `nomic-embed-text` on your machine; a Gemini embedding fallback is configured for when Ollama is unavailable.
 - **Exact search, no approximation** — `IndexFlatIP` does brute-force inner product, which at this corpus scale is both exact and fast.
