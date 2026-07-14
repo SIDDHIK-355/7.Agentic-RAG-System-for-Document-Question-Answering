@@ -63,15 +63,15 @@ User Query
 
 ## 🔄 The Process — What Actually Happens on a Query
 
-Walkthrough for `uv run agent7.py "Index attention.md and tell me its key contributions"`:
+Walkthrough for `uv run agent7.py "Index papers/gitlab_values.md and summarise the core values"`:
 
 1. **Boot** — `ensure_gateway()` health-checks the LLM gateway on port 8107 and auto-starts it if it's down.
 2. **Memory read** — the query is embedded (768-dim, `nomic-embed-text` via Ollama) and searched against FAISS. Relevant past facts/outcomes are attached as context.
-3. **Perception (iteration 1)** — an LLM call decomposes the query into goals: ① index the document, ② extract key contributions.
-4. **Decision** — sees goal ① and memory context, returns `ToolCall(index_document, {path: "papers/attention.md"})`.
+3. **Perception (iteration 1)** — an LLM call decomposes the query into goals: ① index the document, ② summarise the core values.
+4. **Decision** — sees goal ① and memory context, returns `ToolCall(index_document, {path: "papers/gitlab_values.md"})`.
 5. **Action** — the MCP server chunks the file with a sliding window (**400 words per chunk, 80-word overlap**), embeds each chunk, and writes each one as a `fact` into memory + FAISS. The outcome is recorded without any LLM involvement.
 6. **Next iteration** (after a 12 s pace to respect free-tier rate limits) — Perception marks goal ① done, moves to goal ②, and because it's a synthesis goal, flags that retrieved content should be attached.
-7. **Decision** — calls `search_knowledge("key contributions attention")`; FAISS returns the nearest chunks by cosine similarity; a final Decision call reads those chunks and writes the grounded answer.
+7. **Decision** — calls `search_knowledge("GitLab core values")`; FAISS returns the nearest chunks by cosine similarity; a final Decision call reads those chunks and writes the grounded answer.
 8. **Memory record** — the answer and tool outcomes persist to `state/`, so a future run can answer follow-ups without re-indexing.
 
 ### The artifact trick
@@ -133,7 +133,7 @@ Every memory read embeds the query and searches FAISS first, falling back to key
 - **Exact search, no approximation** — `IndexFlatIP` does brute-force inner product, which at this corpus scale is both exact and fast.
 - **Everything is one index** — indexed document chunks, remembered facts, and tool outcomes share the same FAISS index and the same retrieval path.
 
-A 50-article AI/ML corpus (research-paper summaries + Wikipedia articles, in `my_corpus_backup/`) is included for realistic retrieval testing, alongside the GitLab company handbook in `sandbox/` (~30 real-world policy documents).
+A 50-article AI/ML corpus (research-paper summaries + Wikipedia articles, in `my_corpus_backup/`) is included for realistic retrieval testing, alongside the GitLab company handbook in `sandbox/papers/` (~30 real-world policy documents).
 
 ---
 
@@ -154,7 +154,7 @@ cp .env.example .env            # agent: Tavily key
 
 # 3. Run
 uv run agent7.py "What is the current time in Tokyo and Bangalore?"
-uv run agent7.py "Index papers/attention.md, then explain its key contributions"
+uv run agent7.py "Index papers/gitlab_values.md, then summarise GitLab's core values"
 
 # Optional: fetch + index the 50-article corpus
 uv run fetch_corpus.py
