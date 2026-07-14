@@ -22,25 +22,26 @@ An autonomous AI agent that plans multi-step tasks, calls real tools over MCP, i
 
 The agent is five single-responsibility layers connected by typed schemas. Each iteration of the main loop flows through all of them:
 
+```mermaid
+flowchart LR
+    U(["🧑 User query"]) --> M1["1 · MEMORY.read<br>search past facts<br>(FAISS + keyword fallback)"]
+    M1 --> P["2 · PERCEPTION<br>decompose into goals,<br>track what's done"]
+    P --> D["3 · DECISION<br>one LLM call:<br>answer or one tool call"]
+    D --> A["4 · ACTION<br>run the MCP tool<br>(big results → art:hash)"]
+    A --> M2["5 · MEMORY.record<br>save the outcome<br>(zero LLM calls)"]
+    M2 -. "next iteration — repeat until all goals done (max 20)" .-> M1
+    D == "all goals done" ==> F(["✅ Final answer"])
 ```
-                    ┌──────────────────────────────────────────┐
-                    │              agent7.py (loop)             │
-                    └──────────────────────────────────────────┘
-User Query
-    ↓
-1. MEMORY.read        FAISS vector search over stored items;
-    ↓                 keyword-overlap fallback if vectors miss
-2. PERCEPTION         iteration 1: decompose query into goals
-    ↓                 later: mark goals done, pick next goal,
-    ↓                 decide if raw artifact bytes are needed
-3. DECISION           ONE LLM call: return either a final answer
-    ↓                 or exactly one tool call (never both)
-4. ACTION             execute the MCP tool; results > 4 KB go to
-    ↓                 the artifact store, returned as art:<hash>
-5. MEMORY.record      persist the outcome (zero LLM calls)
-    ↓
-(repeat until all goals complete, max 20 iterations)
-```
+
+Everything above runs inside the `agent7.py` loop. What each step does:
+
+| Step | Layer | What happens |
+|---|---|---|
+| 1 | `MEMORY.read` | FAISS vector search over stored items; keyword-overlap fallback if vectors miss |
+| 2 | `PERCEPTION` | Iteration 1: decompose the query into goals. Later: mark goals done, pick the next goal, decide if raw artifact bytes are needed |
+| 3 | `DECISION` | ONE LLM call — returns either a final answer or exactly one tool call, never both |
+| 4 | `ACTION` | Execute the MCP tool; results over 4 KB go to the artifact store and come back as `art:<hash>` |
+| 5 | `MEMORY.record` | Persist the outcome with zero LLM calls |
 
 **Separation of concerns is enforced, not aspirational.** Perception never sees tool names. Decision makes exactly one LLM call per turn. Action never calls an LLM at all. Memory writes on the hot path (`record_outcome`) use zero LLM calls so tool results are never lost to a flaky model.
 
