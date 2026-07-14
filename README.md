@@ -134,11 +134,11 @@ Every memory read embeds the query and searches FAISS first, falling back to key
 <table>
   <tr>
     <td align="center" valign="middle">
-      <img src="docs/memory-read-flow.png" alt="Memory read flow: embed query via gateway, FAISS search, keyword-overlap fallback when there are no hits, return ranked items" width="140"><br>
+      <img src="docs/memory-read-flow.png" alt="Memory read flow: embed query via gateway, FAISS search, keyword-overlap fallback when there are no hits, return ranked items" width="180"><br>
       <sub><b>Memory read</b> — FAISS first, keyword fallback</sub>
     </td>
     <td align="center" valign="middle">
-      <img src="docs/embedding-fallback-sequence.png" alt="Embedding sequence: agent POSTs /v1/embed to gateway V7; if Ollama is available it returns a 768-d vector via nomic-embed-text, otherwise the gateway falls back to gemini-embedding-001 with outputDimensionality=768" width="490"><br>
+      <img src="docs/embedding-fallback-sequence.png" alt="Embedding sequence: agent POSTs /v1/embed to gateway V7; if Ollama is available it returns a 768-d vector via nomic-embed-text, otherwise the gateway falls back to gemini-embedding-001 with outputDimensionality=768" width="630"><br>
       <sub><b>Embedding call</b> — Ollama preferred, Gemini fallback (768-d)</sub>
     </td>
   </tr>
