@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Session 7 — Homework: Build Your Own RAG App</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 900px; margin: 0 auto; padding: 40px 30px; color: #1a1a1a; line-height: 1.7; }
+  h1 { font-size: 2em; border-bottom: 3px solid #2563eb; padding-bottom: 10px; color: #1e3a8a; }
+  h2 { font-size: 1.4em; color: #1e40af; border-left: 4px solid #2563eb; padding-left: 12px; margin-top: 40px; }
+  h3 { font-size: 1.1em; color: #1d4ed8; margin-top: 24px; }
+  code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: 'Menlo', monospace; font-size: 0.9em; color: #dc2626; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 20px; border-radius: 8px; overflow-x: auto; font-family: 'Menlo', monospace; font-size: 0.88em; line-height: 1.6; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.93em; }
+  th { background: #1e40af; color: white; padding: 10px 14px; text-align: left; }
+  td { padding: 9px 14px; border-bottom: 1px solid #e2e8f0; }
+  tr:nth-child(even) { background: #f8fafc; }
+  .box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .warn { background: #fefce8; border: 1px solid #fde047; border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .green-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .step { background: #1e293b; color: #e2e8f0; padding: 16px 20px; border-radius: 8px; margin: 12px 0; }
+  .step .num { color: #fbbf24; font-size: 1.3em; font-weight: bold; margin-right: 8px; }
+  .check { color: #4ade80; }
+  .page-break { page-break-before: always; }
+  ol li { margin-bottom: 10px; }
+  ul li { margin-bottom: 6px; }
+  @media print { body { padding: 20px; } .page-break { page-break-before: always; } }
+</style>
+</head>
+<body>
+
+<h1>Session 7 Homework — Build Your Own RAG App</h1>
+<p><em>Part 2 of the assignment: build a real RAG application over 50+ documents</em></p>
+
+<!-- ─────────────────────────────── -->
+<h2>What You Need to Submit</h2>
+
+<div class="box">
+1. GitHub repo with README<br>
+2. Traces of all 8 base queries (A to H)<br>
+3. Traces of your 5 custom queries — WITH index and WITHOUT index<br>
+4. Short video showing it working
+</div>
+
+<!-- ─────────────────────────────── -->
+<h2>Your Corpus — Anthropic + AI Research Papers</h2>
+
+<p>Your corpus = 50+ articles/papers about AI (Anthropic research, major AI papers, etc.)</p>
+
+<div class="green-box">
+<strong>Space worry?</strong> Each .md file is only ~12KB. 50 files = 600KB total. Less than one photo on your phone.
+</div>
+
+<!-- ─────────────────────────────── -->
+<h2>Step 1 — Get the 50 Documents</h2>
+
+<p>Use the agent's <code>fetch_url</code> tool to download pages as markdown. Each URL becomes one .md file in your sandbox.</p>
+
+<h3>Suggested URLs to fetch (Anthropic)</h3>
+<table>
+<tr><th>#</th><th>URL</th><th>Topic</th></tr>
+<tr><td>1</td><td>https://www.anthropic.com/research/constitutional-ai-harmlessness-from-ai-feedback</td><td>Constitutional AI</td></tr>
+<tr><td>2</td><td>https://www.anthropic.com/research/core-views-on-ai-safety</td><td>AI Safety views</td></tr>
+<tr><td>3</td><td>https://www.anthropic.com/research/scaling-laws-for-neural-language-models</td><td>Scaling Laws</td></tr>
+<tr><td>4</td><td>https://www.anthropic.com/research/claude-character</td><td>Claude's character</td></tr>
+<tr><td>5</td><td>https://www.anthropic.com/research/towards-understanding-sycophancy</td><td>Sycophancy</td></tr>
+<tr><td>6</td><td>https://www.anthropic.com/research/model-card-claude-3</td><td>Claude 3 model card</td></tr>
+<tr><td>7</td><td>https://www.anthropic.com/research/many-shot-jailbreaking</td><td>Jailbreaking</td></tr>
+<tr><td>8</td><td>https://www.anthropic.com/research/measuring-faithfulness-in-chain-of-thought-reasoning</td><td>CoT faithfulness</td></tr>
+<tr><td>9</td><td>https://www.anthropic.com/research/sleeper-agents-training-deceptive-llms</td><td>Sleeper agents</td></tr>
+<tr><td>10</td><td>https://www.anthropic.com/research/mapping-the-mind-of-a-large-language-model</td><td>Interpretability</td></tr>
+</table>
+
+<h3>arXiv AI papers to fetch</h3>
+<table>
+<tr><th>#</th><th>URL</th><th>Topic</th></tr>
+<tr><td>11</td><td>https://arxiv.org/abs/2005.14165</td><td>GPT-3</td></tr>
+<tr><td>12</td><td>https://arxiv.org/abs/2204.05149</td><td>Instruction tuning</td></tr>
+<tr><td>13</td><td>https://arxiv.org/abs/2112.00114</td><td>WebGPT</td></tr>
+<tr><td>14</td><td>https://arxiv.org/abs/2302.07842</td><td>Toolformer</td></tr>
+<tr><td>15</td><td>https://arxiv.org/abs/2303.08774</td><td>GPT-4 Technical Report</td></tr>
+<tr><td>16</td><td>https://arxiv.org/abs/2307.09288</td><td>Llama 2</td></tr>
+<tr><td>17</td><td>https://arxiv.org/abs/2309.10312</td><td>Mistral 7B</td></tr>
+<tr><td>18</td><td>https://arxiv.org/abs/2401.04088</td><td>Mixtral</td></tr>
+<tr><td>19</td><td>https://arxiv.org/abs/2310.06825</td><td>Self-RAG</td></tr>
+<tr><td>20</td><td>https://arxiv.org/abs/2005.11401</td><td>RAG original paper</td></tr>
+</table>
+
+<p>Fetch 30 more from Wikipedia, blog posts, or more arXiv papers on topics you like — to reach 50 total.</p>
+
+<!-- ─────────────────────────────── -->
+<h2 class="page-break">Step 2 — Save Files to Sandbox</h2>
+
+<p>Create a folder inside sandbox for your corpus:</p>
+
+<pre>
+sandbox/
+  papers/         ← sir's 5 papers (already here)
+  my_corpus/      ← your 50 files go here
+    constitutional_ai.md
+    scaling_laws.md
+    gpt3.md
+    ...
+</pre>
+
+<p>Run this agent command to fetch and save one file:</p>
+
+<pre>
+"Fetch https://www.anthropic.com/research/constitutional-ai-harmlessness-from-ai-feedback
+ and save it as my_corpus/constitutional_ai.md"
+</pre>
+
+<p>Repeat for each URL. Or ask the agent to fetch multiple at once.</p>
+
+<!-- ─────────────────────────────── -->
+<h2>Step 3 — Index Your Corpus</h2>
+
+<p>Once all files are in sandbox/my_corpus/, run:</p>
+
+<pre>
+"Index every .md file under my_corpus/. Confirm how many chunks were indexed in total."
+</pre>
+
+<p>The agent will chunk, embed via Ollama, and save to FAISS. One time. Done.</p>
+
+<!-- ─────────────────────────────── -->
+<h2>Step 4 — Design 5 Custom Queries</h2>
+
+<div class="warn">
+<strong>Rules from sir:</strong><br>
+✓ Each query must answer correctly WITH the index<br>
+✓ Each query must FAIL without the index<br>
+✓ At least 2 queries must be SEMANTIC (your words ≠ words in the document)
+</div>
+
+<h3>Example queries for Anthropic/AI corpus</h3>
+
+<table>
+<tr><th>#</th><th>Query</th><th>Type</th><th>Why it works</th></tr>
+<tr><td>1</td><td>"How does Anthropic make sure Claude doesn't lie?"</td><td>Semantic</td><td>"lie" → papers say "honesty", "truthfulness", "deception"</td></tr>
+<tr><td>2</td><td>"What happens when you make a model too large?"</td><td>Semantic</td><td>"too large" → papers say "scaling laws", "compute", "diminishing returns"</td></tr>
+<tr><td>3</td><td>"What is Constitutional AI and how does it work?"</td><td>Direct</td><td>Exact topic in corpus</td></tr>
+<tr><td>4</td><td>"How do these papers think about AI causing harm?"</td><td>Semantic</td><td>"causing harm" → papers say "safety", "alignment", "RLHF", "red-teaming"</td></tr>
+<tr><td>5</td><td>"What is RAG according to these papers?"</td><td>Direct</td><td>RAG paper is in corpus</td></tr>
+</table>
+
+<p>Queries 1, 2, 4 are semantic — your words don't appear in the papers but the meaning matches.</p>
+
+<!-- ─────────────────────────────── -->
+<h2>Step 5 — Prove It Fails Without Index</h2>
+
+<div class="step">
+<span class="num">1.</span> Run all 5 queries with index → save output (these are your WITH traces)
+</div>
+
+<div class="step">
+<span class="num">2.</span> Delete the FAISS files:<br>
+<code>rm state/index.faiss state/index_ids.json state/memory.json</code>
+</div>
+
+<div class="step">
+<span class="num">3.</span> Run the same 5 queries again → save output (these are your WITHOUT traces)<br>
+Agent should fail, search the web, or give a wrong answer
+</div>
+
+<div class="step">
+<span class="num">4.</span> Restore state files (or re-index) and confirm it works again
+</div>
+
+<!-- ─────────────────────────────── -->
+<h2>Step 6 — The Hard Rule (Grep Test)</h2>
+
+<div class="warn">
+<strong>Sir will grep your perception.py</strong><br><br>
+Run this yourself before submitting:<br>
+<code>grep -n "index_document\|search_knowledge\|fetch_url" perception.py</code><br><br>
+Result must be: <strong>no matches</strong><br>
+If any MCP tool name appears inside perception.py's SYSTEM prompt → assignment fails.
+</div>
+
+<!-- ─────────────────────────────── -->
+<h2>Step 7 — Submit</h2>
+
+<div class="step">
+<span class="num">1.</span> Create a GitHub repo
+</div>
+<div class="step">
+<span class="num">2.</span> Add README with your corpus list (what 50 documents you used)
+</div>
+<div class="step">
+<span class="num">3.</span> Add traces folder with:<br>
+  — 8 base query outputs (A to H)<br>
+  — 5 custom query outputs WITH index<br>
+  — 5 custom query outputs WITHOUT index
+</div>
+<div class="step">
+<span class="num">4.</span> Record short video (show at least 3 queries running)
+</div>
+<div class="step">
+<span class="num">5.</span> Submit link
+</div>
+
+<!-- ─────────────────────────────── -->
+<h2>Quick Summary</h2>
+
+<table>
+<tr><th>Task</th><th>Status</th></tr>
+<tr><td>Run 8 base queries (A-H)</td><td>In progress — E, F done</td></tr>
+<tr><td>Get 50 documents</td><td>To do — fetch Anthropic + AI papers</td></tr>
+<tr><td>Index your corpus</td><td>To do — one agent command</td></tr>
+<tr><td>Write 5 custom queries</td><td>To do — at least 2 semantic</td></tr>
+<tr><td>Prove fails without index</td><td>To do — delete FAISS, re-run</td></tr>
+<tr><td>Submit GitHub + video</td><td>To do</td></tr>
+</table>
+
+<hr>
+<p style="text-align:center; color:#94a3b8; font-size:0.85em;">Session 7 Homework — EAGV3 Course</p>
+
+</body>
+</html>

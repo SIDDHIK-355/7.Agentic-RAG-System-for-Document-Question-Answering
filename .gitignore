@@ -1,0 +1,17 @@
+# Secrets — NEVER commit real API keys (use .env.example as the template)
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# Agent runtime state (memory, FAISS index, artifacts, sandbox)
+state/
+sandbox/
+usage.json
+/memory.json
+/index_ids.json

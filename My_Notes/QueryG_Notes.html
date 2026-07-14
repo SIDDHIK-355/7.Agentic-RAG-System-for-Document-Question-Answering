@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Query G — Synonym Recall (Vector Beats Keyword)</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 900px; margin: 0 auto; padding: 40px 30px; color: #1a1a1a; line-height: 1.7; }
+  h1 { font-size: 2em; border-bottom: 3px solid #2563eb; padding-bottom: 10px; color: #1e3a8a; }
+  h2 { font-size: 1.4em; color: #1e40af; border-left: 4px solid #2563eb; padding-left: 12px; margin-top: 40px; }
+  h3 { font-size: 1.1em; color: #1d4ed8; margin-top: 24px; }
+  code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: 'Menlo', monospace; font-size: 0.9em; color: #dc2626; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 20px; border-radius: 8px; overflow-x: auto; font-family: 'Menlo', monospace; font-size: 0.88em; line-height: 1.6; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.93em; }
+  th { background: #1e40af; color: white; padding: 10px 14px; text-align: left; }
+  td { padding: 9px 14px; border-bottom: 1px solid #e2e8f0; }
+  tr:nth-child(even) { background: #f8fafc; }
+  .box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .warn { background: #fefce8; border: 1px solid #fde047; border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .green-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .red-box { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .iter { background: #1e293b; color: #e2e8f0; padding: 14px 18px; border-radius: 8px; margin: 10px 0; font-family: monospace; font-size: 0.88em; }
+  .iter .label { color: #fbbf24; font-weight: bold; }
+  .iter .done { color: #4ade80; }
+  .page-break { page-break-before: always; }
+  @media print { body { padding: 20px; } .page-break { page-break-before: always; } }
+</style>
+</head>
+<body>
+
+<h1>Query G — Synonym Recall (Vector Beats Keyword)</h1>
+<p><strong>What this query tests:</strong> Can the agent find relevant content when the exact words in the question do NOT appear anywhere in the indexed documents?</p>
+
+<!-- ─────────────────────────────── -->
+<h2>The Query</h2>
+
+<pre>
+"Across these papers, how do they handle the credit assignment problem?"
+</pre>
+
+<!-- ─────────────────────────────── -->
+<h2>What is the Credit Assignment Problem?</h2>
+
+<p>Simple version: When a system makes many decisions in a sequence and gets a final result — <strong>which decision was responsible for that result?</strong></p>
+
+<div class="box">
+Example: A dog does 10 tricks, then gets a treat. Which trick earned the treat?<br><br>
+In ML: A neural network makes many calculations. When the output is wrong, which weight caused it?
+</div>
+
+<p>The papers don't use the phrase "credit assignment problem" anywhere. But they all deal with related ideas — gradient flow, reward shaping, intermediate reasoning steps, parameter updates. Vector search finds those related ideas.</p>
+
+<!-- ─────────────────────────────── -->
+<h2>Why Keyword Search Would Fail Here</h2>
+
+<div class="red-box">
+<strong>Keyword search for "credit assignment problem":</strong><br>
+→ grep across all 5 papers = 0 results<br>
+→ BM25 search = 0 results<br>
+→ Agent returns nothing useful
+</div>
+
+<div class="green-box">
+<strong>Vector search for "credit assignment problem":</strong><br>
+→ Query converted to 768 numbers by Ollama<br>
+→ FAISS finds chunks with semantically related content<br>
+→ Finds: attention mechanism (path length), chain-of-thought (intermediate steps), DPO (reward), LoRA (parameter credit), ReAct (action attribution)<br>
+→ Agent synthesizes an answer from 4 out of 5 papers
+</div>
+
+<p><strong>This is the strongest demonstration of why RAG with embeddings is needed.</strong> Keyword search literally cannot answer this query. Vector search can.</p>
+
+<!-- ─────────────────────────────── -->
+<h2>How Each Paper Relates to Credit Assignment</h2>
+
+<table>
+<tr><th>Paper</th><th>How it relates (even without using the phrase)</th></tr>
+<tr><td>Attention (Transformer)</td><td>Self-attention creates direct paths between positions — shorter paths mean gradients flow more easily (easier credit assignment across long sequences)</td></tr>
+<tr><td>Chain-of-Thought</td><td>Breaking reasoning into explicit steps makes each step evaluable — intermediate steps get their own credit</td></tr>
+<tr><td>DPO</td><td>Uses human preference data to assign reward — directly addresses which response deserves credit</td></tr>
+<tr><td>LoRA</td><td>Updates only a small set of low-rank parameters — credit is concentrated on fewer weights making it more precise</td></tr>
+<tr><td>ReAct</td><td>Interleaves reasoning and action — each reasoning step is tied to a specific action, making attribution clearer</td></tr>
+</table>
+
+<!-- ─────────────────────────────── -->
+<h2 class="page-break">What Happens Step by Step</h2>
+
+<div class="iter">
+<span class="label">memory.read →</span> embeds "credit assignment problem" via Ollama<br>
+FAISS searches 15 stored chunk vectors<br>
+Returns chunks that are semantically closest
+</div>
+
+<div class="iter">
+<span class="label">Perception →</span> sees indexed corpus in memory hits<br>
+Creates goal: search the knowledge base + synthesize answer
+</div>
+
+<div class="iter">
+<span class="label">Decision →</span> calls search_knowledge("credit assignment problem")<br>
+Query → Ollama → 768 numbers → FAISS search → top chunks returned inline
+</div>
+
+<div class="iter">
+<span class="label">Decision →</span> reads the chunk content from history<br>
+Synthesizes answer: how each paper handles the concept<br>
+<span class="done">All goals done. Agent stops.</span>
+</div>
+
+<!-- ─────────────────────────────── -->
+<h2>What Vector Search Actually Does Here</h2>
+
+<pre>
+Your query:
+"credit assignment problem"
+        ↓ Ollama
+[0.12, -0.38, 0.71, ...]   ← query vector
+
+Stored chunks (768 numbers each):
+  attention chunk 1: "...path length between input and output positions..."
+  attention chunk 2: "...reduces the number of operations required..."
+  cot chunk 1:       "...intermediate reasoning steps..."
+  dpo chunk 1:       "...reward signal from human preferences..."
+  lora chunk 1:      "...low-rank decomposition of weight matrices..."
+  react chunk 1:     "...reasoning traces interleaved with actions..."
+
+FAISS compares query vector against all 15 stored vectors
+Finds: cot chunk 1, dpo chunk 1, react chunk 1 as closest in meaning
+Returns those chunks → Decision reads and synthesizes
+</pre>
+
+<!-- ─────────────────────────────── -->
+<h2>The Key Lesson</h2>
+
+<div class="box">
+<strong>Dense vector search understands meaning.</strong><br><br>
+"Credit assignment" and "gradient flow through reasoning steps" mean related things.<br>
+The embedding model was trained on enough text to know this.<br>
+So their vectors point in similar directions in 768-dimensional space.<br>
+FAISS finds the small angle between them.<br><br>
+Keyword search sees only characters. Vector search sees meaning.
+</div>
+
+<!-- ─────────────────────────────── -->
+<h2>Quick Reference</h2>
+
+<table>
+<tr><th>Item</th><th>Value</th></tr>
+<tr><td>Query</td><td>"credit assignment problem"</td></tr>
+<tr><td>Exact phrase in papers</td><td>0 occurrences</td></tr>
+<tr><td>Papers with related content found</td><td>4 out of 5</td></tr>
+<tr><td>Search method</td><td>Vector search (FAISS + nomic-embed-text)</td></tr>
+<tr><td>Keyword search result</td><td>Nothing</td></tr>
+<tr><td>This proves</td><td>Vector search finds meaning, not just words</td></tr>
+</table>
+
+<hr>
+<p style="text-align:center; color:#94a3b8; font-size:0.85em;">Query G — Session 7 EAGV3 Notes</p>
+
+</body>
+</html>

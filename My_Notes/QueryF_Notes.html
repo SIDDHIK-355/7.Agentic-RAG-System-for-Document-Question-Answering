@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Query F — Cross-run Document Recall (FAISS Persistence)</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 900px; margin: 0 auto; padding: 40px 30px; color: #1a1a1a; line-height: 1.7; }
+  h1 { font-size: 2em; border-bottom: 3px solid #2563eb; padding-bottom: 10px; color: #1e3a8a; }
+  h2 { font-size: 1.4em; color: #1e40af; border-left: 4px solid #2563eb; padding-left: 12px; margin-top: 40px; }
+  h3 { font-size: 1.1em; color: #1d4ed8; margin-top: 24px; }
+  code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: 'Menlo', monospace; font-size: 0.9em; color: #dc2626; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 20px; border-radius: 8px; overflow-x: auto; font-family: 'Menlo', monospace; font-size: 0.88em; line-height: 1.6; }
+  .comment { color: #64748b; }
+  .green { color: #4ade80; }
+  .yellow { color: #fbbf24; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.93em; }
+  th { background: #1e40af; color: white; padding: 10px 14px; text-align: left; }
+  td { padding: 9px 14px; border-bottom: 1px solid #e2e8f0; }
+  tr:nth-child(even) { background: #f8fafc; }
+  .box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .warn { background: #fefce8; border: 1px solid #fde047; border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .green-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .iter { background: #1e293b; color: #e2e8f0; padding: 14px 18px; border-radius: 8px; margin: 10px 0; font-family: monospace; font-size: 0.88em; }
+  .iter .label { color: #fbbf24; font-weight: bold; }
+  .iter .done { color: #4ade80; }
+  .iter .pending { color: #94a3b8; }
+  .iter .action { color: #38bdf8; }
+  .page-break { page-break-before: always; }
+  @media print { body { padding: 20px; } .page-break { page-break-before: always; } }
+</style>
+</head>
+<body>
+
+<h1>Query F — Cross-run Document Recall (FAISS Persistence)</h1>
+<p><strong>What this query tests:</strong> Can the agent index 5 papers in Run 1, then in a completely fresh process (Run 2), answer from the saved FAISS index without re-indexing anything?</p>
+
+<!-- ─────────────────────────────── -->
+<h2>The Query</h2>
+
+<pre>
+Run 1: "Index every .md file under papers/. Confirm how many chunks were indexed in total."
+
+Run 2: "Across the papers I have indexed, what do they say about chain-of-thought reasoning?"
+</pre>
+
+<!-- ─────────────────────────────── -->
+<h2>Run 1 — What Happened (10 iterations)</h2>
+
+<h3>iter 1 — Discover what files exist</h3>
+<div class="iter">
+<span class="label">Decision →</span> <span class="action">list_dir("papers/")</span><br>
+<span class="label">Result →</span> Found 5 files: attention.md, cot.md, dpo.md, lora.md, react.md
+</div>
+<p>The agent didn't know what was in the folder. It asked <code>list_dir</code> first to discover the files. This is the "discovery goal" pattern.</p>
+
+<h3>iter 2 — First answer attempt (incomplete)</h3>
+<div class="iter">
+<span class="label">Decision →</span> ANSWER: listed the 5 files<br>
+<span class="label">Perception →</span> chunk count goal still not done → keeps going
+</div>
+<p>Decision answered the file listing part but Perception saw the chunk count goal was still open, so the loop continued.</p>
+
+<h3>iter 3 — Perception adds 4 new goals + indexes cot.md</h3>
+<div class="iter">
+<span class="label">Perception →</span> Added 4 new goals — one per remaining paper (cot, dpo, lora, react)<br>
+<span class="label">Decision →</span> <span class="action">index_document("papers/cot.md")</span><br>
+<span class="label">Ollama embeds →</span> 3 chunks × POST /v1/embed = 3 vectors saved to FAISS
+</div>
+<p>This is the "append after discovery" mechanism. Once Perception saw the file list, it created one goal per paper and added them to the goal list.</p>
+
+<h3>iter 4 — Wrong chunk count answer</h3>
+<div class="iter">
+<span class="label">Decision →</span> ANSWER: "9 chunks" (wrong — counted attention.md twice)<br>
+<span class="label">Perception →</span> marked count goal done but remaining paper goals still open
+</div>
+
+<h3>iter 5 — Indexes dpo.md</h3>
+<div class="iter">
+<span class="label">Decision →</span> <span class="action">index_document("papers/dpo.md")</span><br>
+<span class="label">Ollama →</span> 3 more chunks embedded and saved
+</div>
+
+<h3>iter 6 — Indexes lora.md</h3>
+<div class="iter">
+<span class="label">Decision →</span> <span class="action">index_document("papers/lora.md")</span><br>
+<span class="label">Ollama →</span> 3 more chunks embedded and saved
+</div>
+
+<h3>iter 7 — Indexes react.md</h3>
+<div class="iter">
+<span class="label">Decision →</span> <span class="action">index_document("papers/react.md")</span><br>
+<span class="label">Ollama →</span> 3 more chunks embedded and saved
+</div>
+
+<h3>iter 8 — Confused about react.md</h3>
+<div class="iter">
+<span class="label">Decision →</span> ANSWER: "react.md was already done"<br>
+<span class="label">Perception →</span> count goal still open → keeps going
+</div>
+
+<h3>iter 9 — Correct final answer</h3>
+<div class="iter">
+<span class="label">Decision →</span> ANSWER: <strong>15 chunks total</strong><br>
+  — attention.md: 3 chunks<br>
+  — cot.md: 3 chunks<br>
+  — dpo.md: 3 chunks<br>
+  — lora.md: 3 chunks<br>
+  — react.md: 3 chunks
+</div>
+
+<h3>iter 10 — All done</h3>
+<div class="iter">
+<span class="label">Perception →</span> <span class="done">✓ All 8 goals satisfied. Agent stops.</span>
+</div>
+
+<!-- ─────────────────────────────── -->
+<h2>What's on Disk After Run 1</h2>
+
+<pre>
+state/
+  memory.json      ← text of all memory items (facts, tool outcomes, etc.)
+  index.faiss      ← 15 vectors at 768 dimensions each (Ollama made these)
+  index_ids.json   ← ["mem:abc1", "mem:abc2", ...] — 15 IDs in order
+</pre>
+
+<div class="green-box">
+<strong>This is the key point of Query F.</strong> The FAISS index is saved to disk. When Run 2 starts as a completely fresh Python process with no in-memory state, it reads these files from disk on the very first iteration. It doesn't need to re-index anything.
+</div>
+
+<!-- ─────────────────────────────── -->
+<h2 class="page-break">Run 2 — Fresh Process, Same Index</h2>
+
+<p><strong>Query:</strong> "Across the papers I have indexed, what do they say about chain-of-thought reasoning?"</p>
+
+<div class="box">
+<strong>What makes this special:</strong> Run 2 starts with zero in-process memory. No knowledge of Run 1's work. But memory.json + index.faiss are still on disk. On iter 1, memory.read embeds the query via Ollama and FAISS instantly finds relevant chunks — without touching any paper files again.
+</div>
+
+<h3>What Run 2 should do (3 iterations)</h3>
+
+<div class="iter">
+<span class="label">iter 1 →</span> memory.read embeds "chain-of-thought reasoning" via Ollama<br>
+FAISS searches 15 vectors → finds cot.md chunks as most similar<br>
+Perception sees indexed corpus in memory hits → creates search + synthesis goals
+</div>
+
+<div class="iter">
+<span class="label">iter 2 →</span> Decision calls search_knowledge("chain-of-thought reasoning")<br>
+Returns chunks from cot.md (and possibly other papers that mention it)
+</div>
+
+<div class="iter">
+<span class="label">iter 3 →</span> Decision synthesizes answer from the chunks<br>
+<span class="done">All goals done. Agent stops.</span>
+</div>
+
+<p><strong>Zero tool calls to fetch or re-index any files.</strong> Everything comes from the persisted FAISS index.</p>
+
+<!-- ─────────────────────────────── -->
+<h2>How Indexing Worked (Every iter, Same Pattern)</h2>
+
+<pre>
+index_document("papers/cot.md")
+        ↓
+Read cot.md text (full content)
+        ↓
+Split into chunks:
+  chunk 1: words 1–400
+  chunk 2: words 320–720   ← 80 word overlap with chunk 1
+  chunk 3: words 640–end
+        ↓
+For each chunk:
+  HTTP POST http://localhost:8107/v1/embed   ← send chunk text to gateway
+       ↓
+  Ollama (nomic-embed-text) → [0.21, -0.44, ...] ← 768 numbers
+       ↓
+  Save 768 numbers to index.faiss
+  Save original text to memory.json
+  Save chunk ID to index_ids.json
+        ↓
+Return: { chunks_indexed: 3 }
+</pre>
+
+<!-- ─────────────────────────────── -->
+<h2>Why Ollama Made This Run Smoothly</h2>
+
+<table>
+<tr><th>Previous runs (Gemini embed)</th><th>This run (Ollama embed)</th></tr>
+<tr><td>Every embed call burned Gemini RPM</td><td>Every embed call is free and local</td></tr>
+<tr><td>503 errors after 3-4 iterations</td><td>All embed calls returned 200 OK</td></tr>
+<tr><td>Competed with chat calls for quota</td><td>No competition — Ollama is unlimited</td></tr>
+<tr><td>5 papers × 3 chunks = 15 Gemini calls</td><td>0 Gemini embed calls used</td></tr>
+</table>
+
+<div class="green-box">
+<strong>Lesson:</strong> For RAG, always run the embedding model locally (Ollama). Only use cloud APIs for the LLM chat calls (Gemini, Groq, etc.). Mixing both on the same cloud provider exhausts quotas 2x faster.
+</div>
+
+<!-- ─────────────────────────────── -->
+<h2>The Architectural Point</h2>
+
+<p>Query F proves one thing: <strong>the FAISS index on disk is the medium that crosses the process boundary.</strong></p>
+
+<pre>
+Run 1 (process A):
+  indexes 5 papers → writes to disk
+  process ends
+
+Run 2 (process B):
+  starts fresh, no memory of Run 1
+  reads index.faiss from disk on iter 1
+  answers from indexed corpus
+  never touches the .md files
+</pre>
+
+<p>This is what makes the agent durable. It doesn't matter if you restart your computer, close the terminal, or wait a week. As long as the 3 state files exist, the agent remembers everything it indexed.</p>
+
+<!-- ─────────────────────────────── -->
+<h2>Quick Reference</h2>
+
+<table>
+<tr><th>Item</th><th>Value</th></tr>
+<tr><td>Papers indexed</td><td>5 (attention, cot, dpo, lora, react)</td></tr>
+<tr><td>Chunks per paper</td><td>3</td></tr>
+<tr><td>Total chunks</td><td>15</td></tr>
+<tr><td>Chunk size</td><td>400 words</td></tr>
+<tr><td>Overlap</td><td>80 words</td></tr>
+<tr><td>Vector dimensions</td><td>768 (nomic-embed-text via Ollama)</td></tr>
+<tr><td>Run 1 iterations</td><td>10</td></tr>
+<tr><td>Run 2 iterations</td><td>3 (expected)</td></tr>
+</table>
+
+<hr>
+<p style="text-align:center; color:#94a3b8; font-size:0.85em;">Query F — Session 7 EAGV3 Notes</p>
+
+</body>
+</html>
