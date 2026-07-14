@@ -1,4 +1,4 @@
-# 🧠 Agentic RAG — A Tool-Using AI Agent with Persistent Vector Memory
+# 🧠 Agentic RAG System for Document Question-Answering
 
 An autonomous AI agent that plans multi-step tasks, calls real tools over MCP, indexes documents into a local vector store, and **remembers what it learned across runs**. Built in Python with a strictly typed 5-layer architecture, FAISS semantic search, local embeddings via Ollama, and a multi-provider LLM gateway with automatic model routing.
 
