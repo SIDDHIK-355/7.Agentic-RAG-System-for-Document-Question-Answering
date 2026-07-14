@@ -15,3 +15,10 @@ sandbox/
 usage.json
 /memory.json
 /index_ids.json
+
+# Personal notes and transcripts (kept local, not published)
+My_Notes/
+RAG_COURSE_NOTES.md
+RAG_INTERVIEW_QUESTIONS.md
+Session_7 INFO.txt
+Session_7_Transcript.txt
