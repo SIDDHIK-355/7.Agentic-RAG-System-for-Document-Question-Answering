@@ -112,9 +112,24 @@ Query ──embed──▶ 768-dim vector ──┘──▶ top-k by cosine sim
    ──▶ original chunk text ──▶ Decision synthesizes a grounded answer
 ```
 
+### How memory retrieval works
+
+Every memory read embeds the query and searches FAISS first; if vectors return nothing useful, it falls back to keyword-overlap scoring over `memory.json`, so retrieval degrades gracefully instead of failing silently:
+
+<p align="center">
+  <img src="docs/memory-read-flow.png" alt="Memory read flow: embed query via gateway, FAISS search, keyword-overlap fallback when there are no hits, return ranked items" width="420">
+</p>
+
+### How embeddings are produced
+
+The agent never talks to an embedding provider directly — it POSTs to the gateway's `/v1/embed`, which prefers local Ollama (`nomic-embed-text`) and transparently falls back to Gemini (`gemini-embedding-001`, pinned to 768 dims) when Ollama is unavailable:
+
+<p align="center">
+  <img src="docs/embedding-fallback-sequence.png" alt="Embedding sequence: agent POSTs /v1/embed to gateway V7; if Ollama is available it returns a 768-d vector via nomic-embed-text, otherwise the gateway falls back to gemini-embedding-001 with outputDimensionality=768" width="760">
+</p>
+
 - **Embeddings are local and free** — Ollama runs `nomic-embed-text` on your machine; a Gemini embedding fallback is configured for when Ollama is unavailable.
 - **Exact search, no approximation** — `IndexFlatIP` does brute-force inner product, which at this corpus scale is both exact and fast.
-- **Hybrid retrieval** — if vector search returns nothing useful, memory falls back to keyword-overlap scoring, so retrieval degrades gracefully instead of failing silently.
 - **Everything is one index** — indexed document chunks, remembered facts, and tool outcomes share the same FAISS index and the same retrieval path.
 
 A 50-article AI/ML corpus (research-paper summaries + Wikipedia articles, in `my_corpus_backup/`) is included for realistic retrieval testing, alongside the GitLab company handbook in `sandbox/` (~30 real-world policy documents).
