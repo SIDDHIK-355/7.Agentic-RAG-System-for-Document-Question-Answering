@@ -103,14 +103,29 @@ All file tools are jailed to `sandbox/` — the agent cannot touch anything outs
 
 ## 📚 The RAG Pipeline in Detail
 
+RAG happens in two separate phases. **Phase 1 runs once per document** (indexing); **Phase 2 runs on every question** (retrieval + answer).
+
+### Phase 1 — Indexing a document (one time)
+
+```mermaid
+flowchart TD
+    A["📄 Document<br>(e.g. papers/gitlab_values.md)"] --> B["1 · Split into chunks<br>400 words each, 80-word overlap"]
+    B --> C["2 · Embed each chunk<br>Ollama nomic-embed-text → 768-dim vector"]
+    C --> D["3 · Store the vector<br>FAISS index (state/index.faiss)"]
+    C --> E["3 · Store the original text<br>state/memory.json"]
 ```
-Document ──index_document──▶ 400-word chunks (80-word overlap)
-   each chunk ──Ollama nomic-embed-text──▶ 768-dim vector, L2-normalized
-   vector ──▶ FAISS IndexFlatIP          text ──▶ state/memory.json
-                                  │
-Query ──embed──▶ 768-dim vector ──┘──▶ top-k by cosine similarity
-   ──▶ original chunk text ──▶ Decision synthesizes a grounded answer
+
+### Phase 2 — Answering a question (every query)
+
+```mermaid
+flowchart TD
+    Q["❓ User question"] --> R["1 · Embed the question<br>same model → 768-dim vector"]
+    R --> S["2 · FAISS similarity search<br>find top-k closest chunk vectors (cosine)"]
+    S --> T["3 · Look up the original text<br>of those chunks from memory.json"]
+    T --> U["4 · Decision layer reads the chunks<br>and writes a grounded answer"]
 ```
+
+The key link between the phases: **the same embedding model** is used for documents and questions, so a question lands near the chunks that mean the same thing — even when the words are different.
 
 ### How retrieval and embeddings work
 
