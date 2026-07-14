@@ -133,7 +133,7 @@ Every memory read embeds the query and searches FAISS first, falling back to key
 - **Exact search, no approximation** — `IndexFlatIP` does brute-force inner product, which at this corpus scale is both exact and fast.
 - **Everything is one index** — indexed document chunks, remembered facts, and tool outcomes share the same FAISS index and the same retrieval path.
 
-A 50-article AI/ML corpus (research-paper summaries + Wikipedia articles, in `my_corpus_backup/`) is included for realistic retrieval testing, alongside the GitLab company handbook in `sandbox/papers/` (~30 real-world policy documents).
+The GitLab company handbook (~30 real-world policy documents covering engineering, hiring, finance, legal, security, and culture) is included in `sandbox/papers/` as the retrieval corpus.
 
 ---
 
@@ -155,10 +155,6 @@ cp .env.example .env            # agent: Tavily key
 # 3. Run
 uv run agent7.py "What is the current time in Tokyo and Bangalore?"
 uv run agent7.py "Index papers/gitlab_values.md, then summarise GitLab's core values"
-
-# Optional: fetch + index the 50-article corpus
-uv run fetch_corpus.py
-uv run index_corpus.py
 ```
 
 The LLM gateway auto-starts on port 8107 (cold boot can take ~45 s). Check it with:
@@ -203,10 +199,9 @@ python -c "import memory; memory.clear()"   # clears memory.json + FAISS index
 
 ```
 ├── My_Assignment/     the agent (all source code above lives here)
-├── Sir_Code/
-│   └── llm_gatewayV7/ the multi-provider LLM gateway service (FastAPI, port 8107)
-├── my_corpus_backup/  50-article AI/ML corpus for retrieval testing
-└── My_Notes/          design notes and study material (HTML)
+│   └── sandbox/papers/    the GitLab handbook retrieval corpus
+└── Sir_Code/
+    └── llm_gatewayV7/ the multi-provider LLM gateway service (FastAPI, port 8107)
 ```
 
 **Stack:** Python · Pydantic · FAISS · Ollama (`nomic-embed-text`) · FastMCP · FastAPI gateway · Gemini / Groq / Cerebras / GitHub Models · Tavily
