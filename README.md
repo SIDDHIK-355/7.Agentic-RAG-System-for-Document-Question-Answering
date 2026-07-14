@@ -31,6 +31,8 @@ flowchart LR
     A --> M2["5 · MEMORY.record<br>save the outcome<br>(zero LLM calls)"]
     M2 -. "next iteration — repeat until all goals done (max 20)" .-> M1
     D == "all goals done" ==> F(["✅ Final answer"])
+    M2 ~~~ SP["_______________"]
+    style SP fill:none,stroke:none,color:transparent
 ```
 
 Everything above runs inside the `agent7.py` loop. What each step does:
