@@ -135,10 +135,6 @@ Walkthrough for `uv run agent7.py "Index papers/gitlab_values.md and summarise t
 | 7 | `DECISION` | Calls `search_knowledge("GitLab core values")`; FAISS returns the nearest chunks by cosine similarity; a final Decision call reads those chunks and writes the grounded answer |
 | 8 | `MEMORY.record` | The answer and tool outcomes persist to `state/`, so a future run can answer follow-ups without re-indexing |
 
-### The artifact trick
-
-Tool results larger than **4 KB** never enter a prompt directly. They're written to a content-addressed store (`state/artifacts/<sha256>.bin` + `.json` metadata) and represented as an `art:<sha256>` handle. When a goal genuinely needs the raw bytes (summarise/extract), Perception sets `attach_artifact_id` and the outer loop injects the bytes into Decision's prompt — the only place they're ever expanded. Guard rails in Action reject any attempt to pass an `art:` handle as a file path or URL.
-
 ### Model routing
 
 Every layer calls the gateway with `auto_route="<layer>"`. The gateway maps each layer to an appropriately sized model tier — cheap/fast models for perception and memory classification, large models for decision-making — and fails over across providers (`gemini → groq → cerebras → github`) when one is rate-limited or down.
