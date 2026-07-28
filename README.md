@@ -204,14 +204,6 @@ python -c "import memory; memory.clear()"   # clears memory.json + FAISS index
 
 ---
 
-## 🧩 Design Decisions
-
-- **Typed schemas over prompt glue.** Every inter-layer message is a Pydantic model. A malformed LLM response fails loudly at parse time instead of silently corrupting downstream prompts.
-- **Content-addressed artifacts over prompt stuffing.** Hashing blobs by SHA-256 gives free deduplication and makes "attach the bytes" an explicit, auditable decision instead of a default.
-- **Zero-LLM writes on the hot path.** `record_outcome()` persists tool results deterministically; the LLM-classified `remember()` path is reserved for free-form content where classification actually adds value.
-- **The embedding model is pinned.** `nomic-embed-text` @ 768 dims is fixed; changing it invalidates every vector in the index, so the config treats it as immutable and the docs say exactly what re-indexing requires.
-- **Rate limits are a design input.** A 12-second inter-iteration pace plus per-provider failover means the agent completes long multi-tool runs on free-tier quotas.
-
 ## 🗺 Roadmap
 
 - **Semantic chunking** — replace the sliding word-window with boundary-aware chunking
