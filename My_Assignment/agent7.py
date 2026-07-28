@@ -45,9 +45,19 @@ from schemas import Goal
 MCP_SERVER = Path(__file__).parent / "mcp_server.py"
 MAX_ITERATIONS = 20
 
+# Tools that reach the public internet. `--no-web` withholds these from the list
+# Decision sees, so an "answer only from the knowledge base" run cannot quietly
+# fall back to the web when search_knowledge comes up empty. A prompt asking the
+# model not to browse is a request; removing the tool is the actual rule.
+WEB_TOOLS = frozenset({"web_search", "fetch_url"})
 
-def _mcp_tools_for_decision(tools) -> list[dict]:
-    """Convert MCP tool descriptors into the shape the gateway expects."""
+
+def _mcp_tools_for_decision(tools, blocked: frozenset = frozenset()) -> list[dict]:
+    """Convert MCP tool descriptors into the shape the gateway expects.
+
+    Anything named in `blocked` is omitted entirely — Decision never learns the
+    tool exists, which is what makes the restriction real rather than advisory.
+    """
     return [
         {
             "name": t.name,
@@ -55,10 +65,11 @@ def _mcp_tools_for_decision(tools) -> list[dict]:
             "input_schema": t.inputSchema or {"type": "object", "properties": {}},
         }
         for t in tools
+        if t.name not in blocked
     ]
 
 
-async def run(query: str) -> str:
+async def run(query: str, no_web: bool = False) -> str:
     ensure_gateway()
     run_id = uuid.uuid4().hex[:8]
     print(f"\n{'═' * 78}")
@@ -82,8 +93,12 @@ async def run(query: str) -> str:
         async with ClientSession(read, write) as session:
             await session.initialize()
             mcp_tools = (await session.list_tools()).tools
-            tools_for_decision = _mcp_tools_for_decision(mcp_tools)
+            blocked = WEB_TOOLS if no_web else frozenset()
+            tools_for_decision = _mcp_tools_for_decision(mcp_tools, blocked)
             print(f"[mcp] loaded {len(mcp_tools)} tools: {[t.name for t in mcp_tools]}")
+            if blocked:
+                print(f"[mcp] --no-web ON: withheld {sorted(blocked)} — "
+                      f"Decision sees {len(tools_for_decision)} tools")
 
             for it in range(1, MAX_ITERATIONS + 1):
                 if it > 1:
@@ -135,7 +150,20 @@ async def run(query: str) -> str:
                 # 4. ACTION
                 tc = out.tool_call
                 print(f"[decision]      TOOL_CALL: {tc.name}({json.dumps(tc.arguments)[:120]})")
-                result_text, art_id = await action.execute(session, tc)
+                if tc.name in blocked:
+                    # Belt and braces: the tool was withheld from the list, but a
+                    # model can still name one from memory. Refuse at dispatch and
+                    # tell Decision why, so the next turn answers from what it has
+                    # instead of retrying the same call.
+                    art_id = None
+                    result_text = (
+                        f"ERROR: tool '{tc.name}' is disabled for this run (--no-web). "
+                        "Answer using only what search_knowledge returned. If the "
+                        "knowledge base holds nothing relevant, say so plainly."
+                    )
+                    print(f"[blocked]       {tc.name} refused — --no-web is on")
+                else:
+                    result_text, art_id = await action.execute(session, tc)
                 preview = result_text[:200].replace("\n", " ")
                 print(f"[action]        → {preview}{'...' if len(result_text) > 200 else ''}"
                       + (f"   +{art_id}" if art_id else ""))
@@ -165,8 +193,12 @@ async def run(query: str) -> str:
 
 
 def main() -> None:
-    query = " ".join(sys.argv[1:]) or "What is the current time in Asia/Tokyo and Asia/Kolkata? Tell me the difference in hours."
-    asyncio.run(run(query))
+    args = sys.argv[1:]
+    no_web = "--no-web" in args
+    if no_web:
+        args = [a for a in args if a != "--no-web"]
+    query = " ".join(args) or "What is the current time in Asia/Tokyo and Asia/Kolkata? Tell me the difference in hours."
+    asyncio.run(run(query, no_web=no_web))
 
 
 if __name__ == "__main__":
