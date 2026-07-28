@@ -43,7 +43,7 @@ Phase 1 is the `index_document` tool; Phase 2 is `search_knowledge` plus a final
 | `ANSWER` | 3 · Resolve | Map the returned ids back to their original chunk text in `memory.json` |
 | `ANSWER` | 4 · Answer | Decision layer reads those chunks and writes a grounded answer |
 
-The key link between the phases: **the same embedding model** is used for documents and questions, so a question lands near the chunks that mean the same thing — even when the words are different.
+
 
 ### How retrieval and embeddings work
 
