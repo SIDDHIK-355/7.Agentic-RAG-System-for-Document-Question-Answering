@@ -6,6 +6,62 @@ An autonomous AI agent that plans multi-step tasks, calls real tools over MCP, i
 
 ---
 
+## 📚 The RAG Pipeline in Detail
+
+RAG happens in two separate phases. **Phase 1 runs once per document** (indexing); **Phase 2 runs on every question** (retrieval + answer).
+
+```mermaid
+flowchart LR
+    subgraph P1["📥 Phase 1 · Indexing — runs once per document"]
+        direction TB
+        A["📄 Document<br>(e.g. papers/gitlab_values.md)"] --> B["1 · Split into chunks<br>400 words each, 80-word overlap"]
+        B --> C["2 · Embed each chunk<br>Ollama nomic-embed-text → 768-dim vector"]
+        C --> D["3 · Store the vector<br>FAISS index (state/index.faiss)"]
+        C --> E["3 · Store the original text<br>state/memory.json"]
+    end
+    subgraph P2["🔎 Phase 2 · Answering — runs on every query"]
+        direction TB
+        Q["❓ User question"] --> R["1 · Embed the question<br>same model → 768-dim vector"]
+        R --> S["2 · FAISS similarity search<br>find top-k closest chunk vectors (cosine)"]
+        S --> T["3 · Look up the original text<br>of those chunks from memory.json"]
+        T --> U["4 · Decision layer reads the chunks<br>and writes a grounded answer"]
+    end
+    P1 -. "same embedding model · same FAISS index" .-> P2
+    P2 ~~~ SP["_______________"]
+    style SP fill:none,stroke:none,color:transparent
+```
+
+Phase 1 is the `index_document` tool; Phase 2 is `search_knowledge` plus a final Decision call. What each step does:
+
+| Phase | Step | What happens |
+|---|---|---|
+| `INDEX` | 1 · Chunk | Sliding word window over the document — **400 words** per chunk, **80-word** overlap |
+| `INDEX` | 2 · Embed | Each chunk → **768-dim** vector via Ollama `nomic-embed-text` |
+| `INDEX` | 3 · Store | Vector into `state/index.faiss`; the original text into `state/memory.json` |
+| `ANSWER` | 1 · Embed | The question → 768-dim vector using the **same** model — this is what makes the match work |
+| `ANSWER` | 2 · Search | FAISS `IndexFlatIP` over L2-normalized vectors (= cosine similarity); returns the top-k nearest chunks |
+| `ANSWER` | 3 · Resolve | Map the returned ids back to their original chunk text in `memory.json` |
+| `ANSWER` | 4 · Answer | Decision layer reads those chunks and writes a grounded answer |
+
+The key link between the phases: **the same embedding model** is used for documents and questions, so a question lands near the chunks that mean the same thing — even when the words are different.
+
+### How retrieval and embeddings work
+
+Every memory read embeds the query and searches FAISS first, falling back to keyword-overlap scoring over `memory.json` when vectors return nothing — retrieval degrades gracefully instead of failing silently. And the agent never talks to an embedding provider directly: it POSTs to the gateway's `/v1/embed`, which prefers local Ollama (`nomic-embed-text`) and transparently falls back to Gemini (`gemini-embedding-001`, pinned to 768 dims) when Ollama is unavailable.
+
+<p align="center">
+  <img src="docs/embedding-fallback-sequence.png" alt="Embedding sequence: agent POSTs /v1/embed to gateway V7; if Ollama is available it returns a 768-d vector via nomic-embed-text, otherwise the gateway falls back to gemini-embedding-001 with outputDimensionality=768" width="820"><br>
+  <sub><b>Embedding call</b> — Ollama preferred, Gemini fallback (768-d)</sub>
+</p>
+
+- **Embeddings are local and free** — Ollama runs `nomic-embed-text` on your machine; a Gemini embedding fallback is configured for when Ollama is unavailable.
+- **Exact search, no approximation** — `IndexFlatIP` does brute-force inner product, which at this corpus scale is both exact and fast.
+- **Everything is one index** — indexed document chunks, remembered facts, and tool outcomes share the same FAISS index and the same retrieval path.
+
+The GitLab company handbook (~30 real-world policy documents covering engineering, hiring, finance, legal, security, and culture) is included in `sandbox/papers/` as the retrieval corpus.
+
+---
+
 ## ✨ Key Features
 
 - **Agentic loop** — decomposes a query into goals, then plans → acts → observes → re-plans for up to 20 iterations until every goal is done
@@ -68,14 +124,16 @@ Everything above runs inside the `agent7.py` loop. What each step does:
 
 Walkthrough for `uv run agent7.py "Index papers/gitlab_values.md and summarise the core values"`:
 
-1. **Boot** — `ensure_gateway()` health-checks the LLM gateway on port 8107 and auto-starts it if it's down.
-2. **Memory read** — the query is embedded (768-dim, `nomic-embed-text` via Ollama) and searched against FAISS. Relevant past facts/outcomes are attached as context.
-3. **Perception (iteration 1)** — an LLM call decomposes the query into goals: ① index the document, ② summarise the core values.
-4. **Decision** — sees goal ① and memory context, returns `ToolCall(index_document, {path: "papers/gitlab_values.md"})`.
-5. **Action** — the MCP server chunks the file with a sliding window (**400 words per chunk, 80-word overlap**), embeds each chunk, and writes each one as a `fact` into memory + FAISS. The outcome is recorded without any LLM involvement.
-6. **Next iteration** (after a 12 s pace to respect free-tier rate limits) — Perception marks goal ① done, moves to goal ②, and because it's a synthesis goal, flags that retrieved content should be attached.
-7. **Decision** — calls `search_knowledge("GitLab core values")`; FAISS returns the nearest chunks by cosine similarity; a final Decision call reads those chunks and writes the grounded answer.
-8. **Memory record** — the answer and tool outcomes persist to `state/`, so a future run can answer follow-ups without re-indexing.
+| Step | Stage | What happens |
+|---|---|---|
+| 1 | `BOOT` | `ensure_gateway()` health-checks the LLM gateway on port 8107 and auto-starts it if it's down |
+| 2 | `MEMORY.read` | The query is embedded (768-dim, `nomic-embed-text` via Ollama) and searched against FAISS; relevant past facts/outcomes are attached as context |
+| 3 | `PERCEPTION` | Iteration 1 — an LLM call decomposes the query into goals: ① index the document, ② summarise the core values |
+| 4 | `DECISION` | Sees goal ① and memory context, returns `ToolCall(index_document, {path: "papers/gitlab_values.md"})` |
+| 5 | `ACTION` | The MCP server chunks the file with a sliding window (**400 words per chunk, 80-word overlap**), embeds each chunk, and writes each one as a `fact` into memory + FAISS. The outcome is recorded without any LLM involvement |
+| 6 | `PERCEPTION` | Next iteration (after a 12 s pace to respect free-tier rate limits) — marks goal ① done, moves to goal ②, and because it's a synthesis goal, flags that retrieved content should be attached |
+| 7 | `DECISION` | Calls `search_knowledge("GitLab core values")`; FAISS returns the nearest chunks by cosine similarity; a final Decision call reads those chunks and writes the grounded answer |
+| 8 | `MEMORY.record` | The answer and tool outcomes persist to `state/`, so a future run can answer follow-ups without re-indexing |
 
 ### The artifact trick
 
@@ -101,54 +159,6 @@ Every layer calls the gateway with `auto_route="<layer>"`. The gateway maps each
 | `search_knowledge` | Semantic vector search over everything indexed |
 
 All file tools are jailed to `sandbox/` — the agent cannot touch anything outside it.
-
----
-
-## 📚 The RAG Pipeline in Detail
-
-RAG happens in two separate phases. **Phase 1 runs once per document** (indexing); **Phase 2 runs on every question** (retrieval + answer).
-
-### Phase 1 — Indexing a document (one time)
-
-```mermaid
-flowchart TD
-    A["📄 Document<br>(e.g. papers/gitlab_values.md)"] --> B["1 · Split into chunks<br>400 words each, 80-word overlap"]
-    B --> C["2 · Embed each chunk<br>Ollama nomic-embed-text → 768-dim vector"]
-    C --> D["3 · Store the vector<br>FAISS index (state/index.faiss)"]
-    C --> E["3 · Store the original text<br>state/memory.json"]
-```
-
-### Phase 2 — Answering a question (every query)
-
-```mermaid
-flowchart TD
-    Q["❓ User question"] --> R["1 · Embed the question<br>same model → 768-dim vector"]
-    R --> S["2 · FAISS similarity search<br>find top-k closest chunk vectors (cosine)"]
-    S --> T["3 · Look up the original text<br>of those chunks from memory.json"]
-    T --> U["4 · Decision layer reads the chunks<br>and writes a grounded answer"]
-```
-
-The key link between the phases: **the same embedding model** is used for documents and questions, so a question lands near the chunks that mean the same thing — even when the words are different.
-
-### How retrieval and embeddings work
-
-Every memory read embeds the query and searches FAISS first, falling back to keyword-overlap scoring over `memory.json` when vectors return nothing — retrieval degrades gracefully instead of failing silently. And the agent never talks to an embedding provider directly: it POSTs to the gateway's `/v1/embed`, which prefers local Ollama (`nomic-embed-text`) and transparently falls back to Gemini (`gemini-embedding-001`, pinned to 768 dims) when Ollama is unavailable.
-
-<p align="center">
-  <img src="docs/memory-read-flow.png" alt="Memory read flow: embed query via gateway, FAISS search, keyword-overlap fallback when there are no hits, return ranked items" width="420"><br>
-  <sub><b>Memory read</b> — FAISS first, keyword fallback</sub>
-</p>
-
-<p align="center">
-  <img src="docs/embedding-fallback-sequence.png" alt="Embedding sequence: agent POSTs /v1/embed to gateway V7; if Ollama is available it returns a 768-d vector via nomic-embed-text, otherwise the gateway falls back to gemini-embedding-001 with outputDimensionality=768" width="820"><br>
-  <sub><b>Embedding call</b> — Ollama preferred, Gemini fallback (768-d)</sub>
-</p>
-
-- **Embeddings are local and free** — Ollama runs `nomic-embed-text` on your machine; a Gemini embedding fallback is configured for when Ollama is unavailable.
-- **Exact search, no approximation** — `IndexFlatIP` does brute-force inner product, which at this corpus scale is both exact and fast.
-- **Everything is one index** — indexed document chunks, remembered facts, and tool outcomes share the same FAISS index and the same retrieval path.
-
-The GitLab company handbook (~30 real-world policy documents covering engineering, hiring, finance, legal, security, and culture) is included in `sandbox/papers/` as the retrieval corpus.
 
 ---
 
