@@ -145,8 +145,6 @@ Every layer calls the gateway with `auto_route="<layer>"`. The gateway maps each
 
 | Tool | What it does |
 |---|---|
-| `web_search` | Web search (Tavily, DuckDuckGo fallback, monthly usage tracking) |
-| `fetch_url` | Fetch any URL as clean markdown |
 | `get_time` | Current time in any timezone |
 | `currency_convert` | Live currency conversion |
 | `read_file` / `list_dir` | Read files / list dirs (sandboxed to `./sandbox/`) |
