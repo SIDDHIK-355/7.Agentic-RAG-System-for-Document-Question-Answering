@@ -1,4 +1,6 @@
-# 🧠 Agentic RAG System for Document Question-Answering
+<h1 align="center">
+  <img src="docs/title.svg" alt="🧠 Agentic RAG System for Document Question-Answering" width="100%">
+</h1>
 
 An autonomous AI agent that plans multi-step tasks, calls real tools over MCP, indexes documents into a local vector store, and **remembers what it learned across runs**. Built in Python with a strictly typed 5-layer architecture, FAISS semantic search, local embeddings via Ollama, and a multi-provider LLM gateway with automatic model routing.
 
