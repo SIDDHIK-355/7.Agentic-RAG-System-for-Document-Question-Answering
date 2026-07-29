@@ -174,3 +174,6 @@ Recorded so a fresh session can continue exactly where this one stopped. Every f
 - Prompt caching is a prefix match: writes cost 1.25× (5-min TTL) / 2× (1-hour TTL), reads 0.1×; break-even ≈3 questions/hour on the 1-hour TTL; any byte change invalidates. Frequently-changing data therefore favors RAG (re-embed only the changed doc). These TTLs are provider-side only — the local FAISS index has **no expiry**; it persists until `memory.clear()`.
 - Corpus size is measured in words/tokens, not file count. Grounding is tested with a question whose answer the model cannot know from training, plus a paired in-corpus question — one proves refusal, the other proves retrieval.
 - Embeddings are local and free (Ollama `nomic-embed-text`; gateway falls back to Gemini `gemini-embedding-001` @768). Paid LLM calls happen at exactly three sites: `perception.py` (`auto_route="perception"`), `decision.py` (`auto_route="decision"`), and `memory.remember()` (`auto_route="memory"`). Any **one** provider key is enough to run; the extra keys (GEMINI, GROQ, CEREBRAS, NVIDIA all set as of 2026-07-29) exist for rate-limit failover, not as separate requirements.
+
+
+## MY Name is Siddhi Khobragade ?
