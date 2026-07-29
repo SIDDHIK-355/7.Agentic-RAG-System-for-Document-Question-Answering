@@ -185,12 +185,17 @@ class _Classification(BaseModel):
 
 def _persist_item(item: MemoryItem) -> MemoryItem:
     """Append `item` to the JSON store and, if it has an embedding, to the
-    FAISS index. Returns the same item for caller convenience."""
+    FAISS index. Returns the same item for caller convenience.
+
+    The index must be loaded BEFORE the item is saved: on a cold start
+    (first write after clear()) _index() rebuilds from memory.json, and if
+    the new item were already saved it would be re-added there and then
+    again by idx.add below — a duplicate vector."""
+    idx = _index() if item.embedding is not None and item.kind in _EMBEDDABLE_KINDS else None
     items = _load()
     items.append(item)
     _save(items)
-    if item.embedding is not None and item.kind in _EMBEDDABLE_KINDS:
-        idx = _index()
+    if idx is not None:
         idx.add(item.id, item.embedding)
         idx.persist()
     return item
