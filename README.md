@@ -56,9 +56,6 @@ Every memory read embeds the query and searches FAISS first, falling back to key
   <sub><b>Embedding call</b> — Ollama preferred, Gemini fallback (768-d)</sub>
 </p>
 
-- **Embeddings are local and free** — Ollama runs `nomic-embed-text` on your machine; a Gemini embedding fallback is configured for when Ollama is unavailable.
-- **Exact search, no approximation** — `IndexFlatIP` does brute-force inner product, which at this corpus scale is both exact and fast.
-- **Everything is one index** — indexed document chunks, remembered facts, and tool outcomes share the same FAISS index and the same retrieval path.
 
 The GitLab company handbook (~30 real-world policy documents covering engineering, hiring, finance, legal, security, and culture) is included in `sandbox/papers/` as the retrieval corpus.
 
