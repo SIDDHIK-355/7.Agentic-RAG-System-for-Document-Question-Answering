@@ -261,7 +261,7 @@ uv run pytest test_mcp_server.py -v -m embed     # tests needing the embed endpo
 ```
 ├── My_Assignment/     the agent (all source code above lives here)
 │   └── sandbox/papers/    the GitLab handbook retrieval corpus
-└── Sir_Code/
+└── Gateway_Code/
     └── llm_gatewayV7/ the multi-provider LLM gateway service (FastAPI, port 8107)
 ```
 

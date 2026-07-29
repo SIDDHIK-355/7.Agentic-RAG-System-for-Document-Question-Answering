@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```
 Session_7/
 ├── My_Assignment/   ← the assignment codebase (work here)
-├── Sir_Code/        ← reference code provided by the instructor
+├── Gateway_Code/        ← reference code provided by the instructor
 │   ├── S7code/          identical to My_Assignment (reference copy)
 │   └── llm_gatewayV7/   the LLM gateway that the agent depends on
 └── My_Notes/        ← HTML notes (read-only reference)
@@ -24,7 +24,7 @@ All commands must be run from `My_Assignment/`:
 uv run agent7.py "What is the current time in Tokyo and Bangalore?"
 
 # Start the gateway manually (auto-started by agent if not running)
-cd ../Sir_Code/llm_gatewayV7 && ./run.sh
+cd ../Gateway_Code/llm_gatewayV7 && ./run.sh
 
 # Check if gateway is up
 curl -s http://localhost:8107/v1/routers | python3 -m json.tool
@@ -112,7 +112,7 @@ To clear all state between runs: `python -c "import memory; memory.clear()"` (cl
 
 ## Environment
 
-The agent reads `.env` from `My_Assignment/.env`. The gateway reads `Sir_Code/.env` (which is also at `Session_7/.env`). Required keys: `TAVILY_API_KEY`, plus whatever LLM provider keys are configured in the gateway (`GEMINI_API_KEY`, `GROQ_API_KEY`, etc.).
+The agent reads `.env` from `My_Assignment/.env`. The gateway reads `Gateway_Code/.env` (which is also at `Session_7/.env`). Required keys: `TAVILY_API_KEY`, plus whatever LLM provider keys are configured in the gateway (`GEMINI_API_KEY`, `GROQ_API_KEY`, etc.).
 
 The gateway V7 runs on port 8107. Versions V1/V2/V3 run on 8099/8100/8101 respectively and can coexist.
 
@@ -156,7 +156,7 @@ Recorded so a fresh session can continue exactly where this one stopped. Every f
 
 ### Cleanup candidates (discussed, not done)
 
-- Add `Sir_Code/llm_gatewayV7/gateway_v7.db` to `.gitignore` — runtime SQLite log; dirties `git status` after every run.
+- Add `Gateway_Code/llm_gatewayV7/gateway_v7.db` to `.gitignore` — runtime SQLite log; dirties `git status` after every run.
 - Write `index_corpus.py` (batch-index all of `sandbox/papers/`).
 - PDF support via pypdf (sketch above).
 - Optional: a second corpus source on a different topic, so retrieval must discriminate between domains — an all-GitLab corpus makes search trivially easy and never stress-tests ranking.

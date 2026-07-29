@@ -24,7 +24,7 @@ import httpx
 GATEWAY_V7_DIR = Path(
     os.getenv(
         "GATEWAY_V7_DIR",
-        Path(__file__).resolve().parents[1] / "Sir_Code" / "llm_gatewayV7",
+        Path(__file__).resolve().parents[1] / "Gateway_Code" / "llm_gatewayV7",
     )
 )
 GATEWAY_URL = "http://localhost:8107"
