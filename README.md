@@ -156,37 +156,77 @@ All file tools are jailed to `sandbox/` — the agent cannot touch anything outs
 
 ---
 
-## 🚀 Setup
+## 🚀 Setup — step by step
 
-**Requirements:** Python 3.11+, [uv](https://docs.astral.sh/uv/), [Ollama](https://ollama.com), and an API key for at least one LLM provider.
+Follow the steps **in order**. Each step says what it does and how to check it worked.
+
+**Before you start, you need:**
+
+| Tool | What it's for | Install |
+|---|---|---|
+| Python 3.11+ | runs everything | `brew install python` (or python.org) |
+| [uv](https://docs.astral.sh/uv/) | Python package manager | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
+| [Ollama](https://ollama.com) | local embedding model (free, no key) | `brew install ollama` |
+| 1 LLM API key | the agent's brain — Gemini **or** Groq **or** Cerebras, any one | free tier at each provider |
+| Tavily API key | web search tool | free tier at [tavily.com](https://tavily.com) |
+
+### Step 1 — Clone the repo
 
 ```bash
-# 1. Clone and install dependencies
 git clone https://github.com/SIDDHIK-355/7.Agentic-RAG-System-for-Document-Question-Answering.git
-cd 7.Agentic-RAG-System-for-Document-Question-Answering/My_Assignment
+cd 7.Agentic-RAG-System-for-Document-Question-Answering
+```
+
+### Step 2 — Install Python dependencies
+
+```bash
+cd My_Assignment
 uv sync
-ollama pull nomic-embed-text
+```
 
-# 2. Configure keys (real .env files are gitignored — only templates are committed)
-cp ../.env.example ../.env      # gateway: LLM provider keys (any ONE provider is enough)
-cp .env.example .env            # agent: Tavily key (for web search)
-#   → edit both files and paste your keys
+✅ *Check:* `uv run python -c "import faiss; print('ok')"` prints `ok`.
 
-# 3. Build the knowledge-base index (one time — chunks + embeds all 76 corpus files)
+### Step 3 — Start Ollama and pull the embedding model
+
+```bash
+ollama serve &                  # skip if Ollama is already running
+ollama pull nomic-embed-text    # 768-dim embedding model (~270 MB)
+```
+
+✅ *Check:* `ollama list` shows `nomic-embed-text`.
+
+### Step 4 — Add your API keys (2 files)
+
+Real `.env` files are gitignored — only templates are committed, so you create yours from them:
+
+```bash
+cp ../.env.example ../.env      # gateway keys → open ../.env, paste ONE LLM key (GEMINI_API_KEY or GROQ_API_KEY …)
+cp .env.example .env            # agent key   → open .env, paste TAVILY_API_KEY
+```
+
+### Step 5 — Build the knowledge-base index (one time)
+
+```bash
 uv run index_corpus.py
+```
 
-# 4. Run
+This chunks all 76 handbook files, embeds each chunk with Ollama, and saves the FAISS index under `state/`. The LLM gateway auto-starts on port 8107 (first boot takes ~45 s — be patient).
+
+✅ *Check:* the last line says `done: 76 files indexed (753 chunks)`.
+
+### Step 6 — Ask your first questions
+
+```bash
+# basic agent check (uses web tools)
 uv run agent7.py "What is the current time in Tokyo and Bangalore?"
+
+# RAG check — answers ONLY from the indexed handbooks, web tools disabled
 uv run agent7.py --no-web "What does GitLab mean by 'short toes', and what example do they give about the CEO?"
 ```
 
-The LLM gateway auto-starts on port 8107 (cold boot can take ~45 s). Check it with:
+✅ *Check:* the second answer mentions the CEO's own merge request being closed — a detail that only exists in the indexed corpus.
 
-```bash
-curl -s http://localhost:8107/v1/routers | python3 -m json.tool
-```
-
-**Tests:**
+### Step 7 — Optional: run the tests
 
 ```bash
 uv run pytest test_mcp_server.py -v              # offline tests
@@ -194,11 +234,15 @@ uv run pytest test_mcp_server.py -v -m network   # tests needing web/API access
 uv run pytest test_mcp_server.py -v -m embed     # tests needing the embed endpoint
 ```
 
-**Reset all agent memory:**
+### If something goes wrong
 
-```bash
-python -c "import memory; memory.clear()"   # clears memory.json + FAISS index
-```
+| Symptom | Cause | Fix |
+|---|---|---|
+| First run hangs ~45 s | gateway cold boot | wait; check `curl -s http://localhost:8107/v1/routers` |
+| `connection refused` on embeddings | Ollama not running | `ollama serve` |
+| LLM errors on every call | missing/wrong key in `../.env` | paste a valid key for at least one provider |
+| `web_search` fails | missing `TAVILY_API_KEY` in `.env` | add it, or use `--no-web` queries |
+| Want a clean slate | old index/memory | `python -c "import memory; memory.clear()"`, then redo Step 5 |
 
 ---
 
