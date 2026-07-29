@@ -256,10 +256,46 @@ uv run pytest test_mcp_server.py -v -m embed     # tests needing the embed endpo
 ## 📂 Repository Layout
 
 ```
-├── My_Assignment/     the agent (all source code above lives here)
-│   └── sandbox/papers/    the GitLab handbook retrieval corpus
-└── Gateway_Code/
-    └── llm_gatewayV7/ the multi-provider LLM gateway service (FastAPI, port 8107)
+Session_7/
+├── README.md                  ← you are here
+├── .env.example               template for the gateway's LLM provider keys
+│
+├── My_Assignment/             🤖 THE AGENT — all source code
+│   ├── agent7.py                  main loop (20 iterations max, --no-web flag)
+│   ├── perception.py              query → goals, goal tracking (no tool names!)
+│   ├── decision.py                one LLM call: final answer OR one tool call
+│   ├── action.py                  MCP tool dispatcher (big results → artifacts)
+│   ├── memory.py                  4 memory kinds, FAISS + keyword retrieval
+│   ├── vector_index.py            FAISS wrapper (cosine similarity, persisted)
+│   ├── artifacts.py               SHA-256 content-addressed blob store
+│   ├── gateway.py                 client for the LLM gateway (auto-starts it)
+│   ├── mcp_server.py              11 MCP tools (search, files, index, retrieve)
+│   ├── schemas.py                 all Pydantic contracts between layers
+│   ├── fetch_corpus.py            downloads the 5 company handbooks
+│   ├── index_corpus.py            one-command batch indexer (76 files → chunks)
+│   ├── demo_queries.sh            one-file runner: gateway + index + demo queries
+│   ├── test_mcp_server.py         pytest suite for the MCP tools
+│   ├── .env.example               template for the agent's Tavily key
+│   ├── sandbox/                   🔒 the only folder file-tools can touch
+│   │   └── papers/                    📚 THE CORPUS — 76 handbook files, 5 companies
+│   │                                  (gitlab_*, basecamp_*, sourcegraph_*,
+│   │                                   posthog_*, niteo_*)
+│   └── state/                     runtime state (gitignored, rebuilt by indexer)
+│       ├── memory.json                all memory items incl. document chunks
+│       ├── index.faiss                the FAISS vector index (768-dim)
+│       ├── index_ids.json             FAISS position → memory-item id map
+│       └── artifacts/                 content-addressed blobs from big tool results
+│
+├── Gateway_Code/              🌐 THE LLM GATEWAY (instructor's service)
+│   └── llm_gatewayV7/             FastAPI, port 8107 — one API over Gemini/Groq/
+│                                  Cerebras/GitHub Models + /v1/embed via Ollama
+│
+├── traces/                    🧾 test-run outputs (submission evidence)
+│   ├── custom_queries/with_index/     5 queries answered from the corpus
+│   ├── custom_queries/without_index/  same 5 failing after index deletion
+│   └── grounding_demo/                in-corpus vs out-of-corpus proof runs
+│
+└── docs/                      images used by this README
 ```
 
 **Stack:** Python · Pydantic · FAISS · Ollama (`nomic-embed-text`) · FastMCP · FastAPI gateway · Gemini / Groq / Cerebras / GitHub Models · Tavily
