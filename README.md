@@ -161,19 +161,23 @@ All file tools are jailed to `sandbox/` — the agent cannot touch anything outs
 **Requirements:** Python 3.11+, [uv](https://docs.astral.sh/uv/), [Ollama](https://ollama.com), and an API key for at least one LLM provider.
 
 ```bash
-# 1. Install dependencies
-cd My_Assignment
+# 1. Clone and install dependencies
+git clone https://github.com/SIDDHIK-355/7.Agentic-RAG-System-for-Document-Question-Answering.git
+cd 7.Agentic-RAG-System-for-Document-Question-Answering/My_Assignment
 uv sync
 ollama pull nomic-embed-text
 
 # 2. Configure keys (real .env files are gitignored — only templates are committed)
-cp ../.env.example ../.env      # gateway: LLM provider keys
-cp .env.example .env            # agent: Tavily key
+cp ../.env.example ../.env      # gateway: LLM provider keys (any ONE provider is enough)
+cp .env.example .env            # agent: Tavily key (for web search)
 #   → edit both files and paste your keys
 
-# 3. Run
+# 3. Build the knowledge-base index (one time — chunks + embeds all 76 corpus files)
+uv run index_corpus.py
+
+# 4. Run
 uv run agent7.py "What is the current time in Tokyo and Bangalore?"
-uv run agent7.py "Index papers/gitlab_values.md, then summarise GitLab's core values"
+uv run agent7.py --no-web "What does GitLab mean by 'short toes', and what example do they give about the CEO?"
 ```
 
 The LLM gateway auto-starts on port 8107 (cold boot can take ~45 s). Check it with:
