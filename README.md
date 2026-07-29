@@ -78,16 +78,14 @@ The GitLab company handbook (~30 real-world policy documents covering engineerin
 The agent is five single-responsibility layers connected by typed schemas. Each iteration of the main loop flows through all of them:
 
 ```mermaid
-flowchart LR
+flowchart TB
     U(["🧑 User query"]) --> M1["1 · MEMORY.read<br>search past facts<br>(FAISS + keyword fallback)"]
     M1 --> P["2 · PERCEPTION<br>decompose into goals,<br>track what's done"]
     P --> D["3 · DECISION<br>one LLM call:<br>answer or one tool call"]
     D --> A["4 · ACTION<br>run the MCP tool<br>(big results → art:hash)"]
     A --> M2["5 · MEMORY.record<br>save the outcome<br>(zero LLM calls)"]
-    M2 -. "next iteration — repeat until all goals done (max 20)" .-> M1
+    M2 -. "next iteration — repeat<br>until all goals done (max 20)" .-> M1
     D == "all goals done" ==> F(["✅ Final answer"])
-    M2 ~~~ SP["_______________"]
-    style SP fill:none,stroke:none,color:transparent
 ```
 
 Everything above runs inside the `agent7.py` loop. What each step does:
