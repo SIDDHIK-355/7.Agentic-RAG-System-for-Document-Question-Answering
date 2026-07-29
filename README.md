@@ -92,15 +92,6 @@ flowchart LR
 
 Everything above runs inside the `agent7.py` loop. What each step does:
 
-| Step | Layer | What happens |
-|---|---|---|
-| 1 | `MEMORY.read` | FAISS vector search over stored items; keyword-overlap fallback if vectors miss |
-| 2 | `PERCEPTION` | Iteration 1: decompose the query into goals. Later: mark goals done, pick the next goal, decide if raw artifact bytes are needed |
-| 3 | `DECISION` | ONE LLM call — returns either a final answer or exactly one tool call, never both |
-| 4 | `ACTION` | Execute the MCP tool; results over 4 KB go to the artifact store and come back as `art:<hash>` |
-| 5 | `MEMORY.record` | Persist the outcome with zero LLM calls |
-
-**Separation of concerns is enforced, not aspirational.** Perception never sees tool names. Decision makes exactly one LLM call per turn. Action never calls an LLM at all. Memory writes on the hot path (`record_outcome`) use zero LLM calls so tool results are never lost to a flaky model.
 
 ### Components
 
