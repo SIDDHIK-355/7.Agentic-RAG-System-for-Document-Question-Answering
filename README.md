@@ -131,7 +131,7 @@ Every layer calls the gateway with `auto_route="<layer>"`. The gateway maps each
 
 ---
 
-## 🛠 The 11 MCP Tools
+## 🛠  MCP Tools
 
 | Tool | What it does |
 |---|---|
