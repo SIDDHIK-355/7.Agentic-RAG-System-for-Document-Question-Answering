@@ -3,9 +3,11 @@
 .env.*
 !.env.example
 
-# runtime state
+# runtime state (sandbox/papers/ is the committed corpus; the rest of
+# the sandbox is agent-created scratch)
 state/
-sandbox/
+sandbox/*
+!sandbox/papers/
 usage.json
 
 # python

@@ -1,0 +1,281 @@
+Welcome to PostHog!
+
+Giving a new joiner a great onboarding experience is super important to us. We want new joiners to feel they’ve made the right decision to join us, and that they are excited and committed to what we’re doing as a company.
+
+Our team is spread across the world, and so are our new joiners. In order to ensure the best possible onboarding experience, we aim for the new joiner to meet up with someone from their team in their first week. Depending on the new joiner's location, they might fly out to one of our team members, or the other way around. So the onboarding experience will look a little bit different, depending on where the new joiner is based and which team they will be joining.
+
+## Onboarding email
+
+We send an introductory email to all new hires to welcome them to the team and ease them into some of the essential actions we need them to take. Once they've completed their items and signed their contracts, People & Ops will get them onboarded into their initial accesses and onboarding channel.
+
+> Once you've joined PostHog, we will **not** use email for communicating with each other. For example, James or Tim will never ask you to do something critical over email only – they'll always confirm it over Slack, and so will everyone else. Be extremely cautious of direct emails from James, Tim, or other people of PostHog.
+
+The onboarding email is sent by the People team directly. We want to strike a balance between sending attractive, personalized emails and avoiding creating process or using overpowered tools, such as Customer.io or Mailchimp. So, we landed on a simple email with the necessary links.
+
+<p>This doc is a suggested template with important actions specified, though we recommend personalizing it to the individual. We've linked to these as docs and direct images to make the formatting easier for you, but here is an accompanying image for use in emails.</p>
+
+## Onboarding checklist
+
+Once your accounts are set up, you'll get a welcome message in your onboarding channel with a link to the Ops Platform to get started. Everything you need to do, including the role-specific tasks your team adds, is tracked there in one place. When you first log in, you'll land on a welcome page with a short set of preboarding tasks, and your full checklist lives on your employee profile.
+
+## Onboarding buddy
+
+Every new joiner at PostHog has an onboarding buddy, usually the team lead. If the team lead can't take it on (timing, leave, etc.), they'll arrange for another team member to be the buddy instead. Whoever it is, please make sure you don't have any leave booked in the week before and the two weeks after the new starter joins.
+
+If possible, a new joiner will meet their onboarding buddy in person during their first week. In case in-person onboarding isn't an option, we will make alternative arrangements. They can help with questions that pop up and with socializing during the first couple of weeks at PostHog. Of course, everyone is available to help, but it's nice to have a dedicated person to help.
+
+Each new joiner will have a dedicated Slack channel just for onboarding, named `#onboarding-[who]-[team]-[month]-[year]-[where]`. The team lead and the People & Ops team are automatically in there. Other team members who will be involved in the onboarding can choose to join or be added to the channel as well.
+
+It's the best place to ask questions during your onboarding and first few days. Once you've signed your contract, we'll get you set up with everything you need to hit the ground running: your PostHog Google account and email, Slack, GitHub, a company card, access to the ops platform, and the tools specific to your role.
+
+### Guidance for onboarding buddies
+
+-   Say hi to your new joiner in their onboarding channel and decide together where and when the in-person onboarding will happen. Request a budget through the Slack offsite app `/offsite`! For the budget and travel, see In-person onboarding.
+-   Please make sure you spend at least 3 days together, working through the first week onboarding list and spending time working on any role-specific tasks that are outlined in the new joiner's personal onboarding checklist.
+    -   Make sure to add the details of the in-person onboarding to the In-person Onboarding Calendar so that other PostHog team members can join, if possible. Simply create an event in your calendar and then invite the in-person onboarding calendar as a guest.
+-   You will remain the new joiner's main point of contact for the first few weeks, so please continue to check in with them at least once a week for the first month or so.
+-   As onboarding buddy, you are responsible for making sure the onboarding is fun and effective, so you should make sure there's a clear plan for work _and_ social time. Great in-person onboarding is crucial for getting someone started at PostHog.
+    -   The plan doesn't need to be minute-by-minute, but do have a rough shape for the days you're together so the new joiner isn't left wondering what's next once the initial intro conversations are done. A little structure goes a long way, and still leaves plenty of room to explore and learn by doing.
+-   Point the new joiner to the handbook early and talk through why it matters – it's how we default to sharing context at PostHog, and knowing their way around it is one of the most useful things they can pick up in week one.
+-   **Not run an onboarding before?** That's completely fine – ask the People & Ops team or your team lead to pair you with someone who's done it before to support _you_. It's much easier to give someone a great start when you're not figuring out what "great" looks like at the same time.
+
+## In-person onboarding
+
+Except under special circumstances, new joiners meet with members of their team in-person to go through the onboarding process. With very few exceptions (visa issues or excessive travel time), in-person onboarding should happen at Hogpatch in San Francisco or the Hedge House in London. Both are set up for it, remove most of the planning friction, and you'll always be in the same space as other PostHog teams — which is way more fun, and means you'll meet more people. Regardless of location, everyone should have their own bedroom.
+
+To stay at the Hedge House London, book a bedroom through the @HedgeHouse London app via Slack; booking a room automatically reserves you a desk for the week. Message Kendal with any questions.
+
+While there is no fixed budget for onboardings they should be relatively less expensive than a small team offsite, which is $2,000 per person. Some considerations to reduce the cost:
+
+-   Avoid intercontinental travel or choose a location that limits it to the minimum number of people possible
+-   Consider doing more casual social activities that are less expensive: dinners, drinks etc
+-   You can request budget for the team lead +1 more team member as an onboarding budget using the Slack command `/offsite`. Any other team members joining can use their working together budget (be mindful that onboardings are distracting so the more team members you have join, the less productive the team will be that week, you also have offsites for the team to all get together).
+-   The new team member already has their own onboarding budget to book their flights and accommodation, so do not include them in the budget.
+-   See if there are any other onboardings at the same time you could pair up with
+
+Aim to keep things sensible and cheap. As always, use your best judgement when spending money. There will of course be some exceptions to this, please just include the reasoning in your Brex budget request, and ensure to list who the budget request is for.
+
+> You should by default avoid combining in-person onboarding with small team offsites as they serve different purposes. The focus of onboarding is generally on making the new team member successful, but offsites feature things like hackathons and 360 feedback which aren't usually helpful for this and detract from useful onboarding time. However, it may occasionally make sense to combine the two - just use your judgement.
+
+It is important that you make the most out of the sync time with the new joiner on your team. You should not spend the whole week sitting next to them doing your usual work. Having something planned each day is sufficient, some ideas include:
+- An intro to PostHogs values & strategy
+- A history of your team, your current quarterly goals and a product demo of the features you own (product teams only)
+- Interview feedback session between the team lead and new joiner
+- Deep dive into a specific feature where you walk through the code (product teams only)
+- Mock demo (sales team only)
+- "No stupid questions" where the new joiner is expected to come with questions they had since starting
+
+### Your first week
+
+Your first week can definitely be a bit overwhelming at any new company, so here's what you can (roughly) expect!
+- You will meet (either in person or virtually) your team lead to discuss goals and aims over the next 30/60/90 days and beyond
+- You will get all your equipment set up and get access to all the accounts you need
+- You will receive your new hire kit (which includes No Rules Rules which we encourage everyone to read as it gives you a great insight into how we work as a company)
+- You should try and set up a few calls with a range of people to introduce yourself
+- You should try and speak to some actual users of your product. Your team lead or PM will help you set these up, and this can be a great source of things to work on in your first week.
+- You should dive straight in, fix a typo in the handbook, ship a tiny bug fix, anything to get you going! 
+
+> **If your laptop is delayed:** In rare cases your PostHog-issued laptop may not arrive until several days after your start date. If that happens, you can begin non-sensitive onboarding tasks (reading the handbook, intro calls, etc.) on your personal laptop in the meantime. Treat a personal laptop as less trusted:
+>
+> - Do **not** access production cloud environments (AWS, GCP, etc.) from it.
+> - Do **not** store or handle any secrets on it, including secrets used for local development.
+>
+> Move anything sensitive to your company laptop as soon as it arrives.
+
+### Engineering
+
+We hire engineers on a regular basis, running in-person onboarding practically every time. Over the years, we've learned a lot about doing this efficiently and there's much to gain from sharing the knowledge between teams.
+
+Based on this ongoing learning process, here are our **five rules for onboarding an engineer**:
+
+1. Ship something together on day one – even if tiny! It feels great to hit the ground running, with a development environment all ready to go.
+2. Run 1:1 learning sessions with the new teammate every day. Give them all the context they need to succeed. By the end of the onboarding, each team member present should've run at least one such session.
+ <details>
+   <summary>Looking for learning session ideas?</summary>
+   <p>Here's a non-exhaustive list:</p>
+   <ul>
+     <li>The <a href="/handbook/engineering/databases/event-ingestion">lifecycle of an event</a>, from a client library all the way to query results</li>
+     <li>How we turn all our TSX and SCSS files into a fast frontend served from S3</li>
+     <li>The architecture of PostHog Cloud</li>
+     <li>Trunk-based development - how we make use of feature flags</li>
+     <li>Query nodes and how they're used throughout the app</li>
+     <li>What the dead letter queue is for</li>
+     <li>How PostHog experiment results are calculated</li>
+     <li>What engineering planning looks like at PostHog</li>
+   </ul>
+   <p>
+     Any of these chats can take as little as 15 minutes or as long as 1 hour, depending on the level of detail.
+     You'll also find that some topics apply perfectly in some teams, but not so much in others.
+     This is all up to you!
+   </p>
+ </details>
+3. Do at least one brainstorming session on a topic important for the team, writing down actionable conclusions. Use the time together to discuss issues and involve the new joiner in decisions.
+4. Pair whenever possible. You're all sitting next to each other, so pick work that can benefit from in-person collaboration.
+5. Have fun, because life isn't all work! Do some sightseeing, go out for dinner, or find a fun activity – just hang out together any way you like.
+
+## Tools we use
+
+We use a number of different tools to organise our work and communicate at PostHog. Below is a summary list of the most important ones - this list is not intended to be exhaustive
+
+### Everyone
+
+-   PostHog ops platform (ops.posthog.dev) - onboarding, employee profiles and people ops
+-   Google Suite - Gmail, Google Apps such as Docs, Sheets, Slides
+-   GitHub - most comms and product work
+-   Slack - we have an internal workspace and a users Slack as well
+-   Brex (US, RoW) or Revolut (UK, EU) - company cards and expenses tracking
+-   Shopify - powers our merch store
+-   Time off by Deel (Slack App) - holiday tracking
+-   Bamboo HR - payroll and benefits (US)
+-   Deel - contractor & EOR payroll & HRIS
+
+### Engineering
+
+-   AWS
+-   Incident.io
+-   Heroku
+-   Grafana
+
+### Design
+
+-   Figma
+
+### Ops, People & CS
+
+-   Salesforce - customer CRM
+-   PostHog Support - our support platform
+-   Mosaic - financial modelling
+-   Carta - cap table management
+-   Fondo - US accounting
+-   Deel - international payroll and contracts management
+-   Ashby - recruitment
+-   Micromerch - merch inventory management, YC onboarding merch, and merch drop-shipping for small events
+
+## Signatories
+
+Charles, James and Tim at this time are the only people able to sign legal paperwork on behalf of the company.
+
+## How we work
+
+Now it's time to dive into some of the more practical stuff - these are the most important pages:
+
+1. Communication - we have a distinctive style. If PostHog is your first all-remote company, this page is especially helpful.
+2. Team structure - we are structured in Small Teams. These pages will help you get the lay of the land, and who does what.
+3. Management - we have a relatively unusual approach to management, and it is possible that you will not be familiar with our approach.
+
+### Working in GitHub
+
+We use GitHub for _everything_, including non-engineering task management. This might take some getting used to if you are non-technical. If that is the case, we have a detailed guide on how to set up a local version of Posthog.com so that you can make changes to the docs, handbook and website and a blog about why we use GitHub as our CMS to help you out.
+
+Our most active repositories (aka 'repos') are:
+
+-   PostHog - main app
+-   PostHog.com - website
+-   Product Internal - product-related issues that need to be kept internal, e.g. security issues, customer-specific issues (private)
+-   Company Internal - company-facing issues, e.g. internal processes, hiring planning (private)
+
+When you have a new Issue or want to submit a Pull Request, you do that in the relevant repo.
+
+We use GitHub Projects to track the status of Issues in an easily viewable way. When you create an Issue, you can assign it to a Project - think of a Project as a way of organising and filtering Issues in a particular view. This makes it easy for Small Teams to easily track what they are working on without having to jump between different repos. Some Issues may be assigned to multiple Projects if they involve the work of more than one team.
+
+You can also assign an Issue to a specific person, and tag it with a relevant label - use these to help people filter more easily.
+
+Each Small Team has its own Project for tracking their Issues - full list here. Most teams run two week sprints - as part of onboarding, you will be invited to the relevant planning meetings.
+
+### Support hero training
+
+Employees are occasionally called upon to act as support heroes, or need to deal with support tickets that are escalated to them. This most often applies to engineers, but can include any employee regardless of their team. For this reason, we need everyone to have a broad idea of our support processes and know how we deal with customers.
+
+All new hires should schedule a 30 minute session with the support engineer closest to their timezone within their first three weeks at PostHog.
+
+In this call the support engineer will be able to answer any questions, as well as demonstrate how we deal with support at PostHog. In particular, the support engineer should cover:
+
+-   [ ] What the role of a support hero is and how they can expect to receive tickets/escalations
+-   [ ] An overview of where tickets come from and how to differentiate between paying/free users
+-   [ ] How tickets get created from Slack threads and how to transfer tickets to other teams
+-   [ ] Advice on how to communicate with customers and prioritize tickets
+-   [ ] How and when to mark tickets as 'On hold' or 'Pending'
+-   [ ] What our SLAs are and what ticket severity indicates
+-   [ ] How to deal with bug reports and feature requests, and how to merch customers
+-   [ ] How to avoid duplication of effort by assigning tickets when you start work
+-   [ ] Where your tickets live
+-   [ ] When to use private notes, and raising internal questions about a ticket in Slack
+
+It can be especially helpful for new hires if support engineers demonstrate how to solve a few simple tickets from start to finish, through shadowing.
+
+## 30/60/90 day check-ins
+
+Team leads are responsible for helping their new members navigate the first 3 months probationary period. There is a strong importance on 1) providing feedback to the new team member, and 2) communicating with Blitzscale about unresolved performance issues, so that there is enough time for action. Team leads are, again, not responsible for hiring or firing, nor communicating these possibilities directly to teammates - this is handled by the Blitzscale team, and is frankly a very rare situation - the vast majority of people we hire do pass their probationary period!
+
+Team leads will receive an automated feedback form at the 30, 60, and 80 day marks. It's a reminder these checkpoints have arrived and a chance to provide feedback and make sure everything is on track for the probationary period to be passed.
+
+-   30-day checkin
+    -   Team lead provides 30-day feedback to the team member - especially if there is constructive feedback that needs to be given to ensure the person passes probation.
+    -   It's also a good time to reinforce the positive work that has been done by somebody on the right track.
+-   60-day checkin
+    -   Team lead provides 60-day feedback to the team member - if things are going well, this is a good time to give an indication, which can ease any concerns the team member may have.
+    -   Blitzscale team will get involved as necessary to provide an additional layer of feedback to the team member.
+-   80-day checkin
+    -   Final feedback checkin before probation ends - provide any extra feedback, though things _should_ feel like they're humming at this point.
+    -   Any outstanding concerns should be raised with Blitzscale team 
+-   90-day 
+    -   We've made it! By default, there isn't a formal company side 'you passed' communication - by this point, the team member should already have a clear understanding through the prior checkins.
+
+Feedback is a really important part of the onboarding process and as a team lead it's a good idea to ensure the new team member receives feedback from their peers - either from you collecting it or them receiving it directly from their peers. It won't always be possible or necessary to do a 360 feedback session within the first 3 months, so it's up to you as a team lead how best to approach that. As a team lead you can also have blind spots on performance, so checking in with their peers can be helpful and can be done during your normal 1-1s.
+
+These check-ins are designed to ensure every new starter is set up for success. Every team lead will deal with these slightly differently, but it will hopefully be clear to everybody by around the 60 day mark how things are going and what needs to be worked on, if anything. It is important for a team lead to ensure that they do not wait for one of these check-ins to communicate with a Blitzscale team member that there could be issues with the team member passing probation. They should let them know immediately, so that a fair and reasonable plan can be put in action ASAP.
+
+If you have any issues or any feedback on how to improve a specific intro just post in the #team-people-and-ops slack channel and tag the relevant people
+
+## Finding answers at PostHog
+
+Need help finding something? We have a strong culture of self-sourcing answers - it helps you get unblocked faster and builds your intuition for where things live. Start with #ask-max, our AI that's read every handbook and documentation page. It'll point you to relevant docs instantly and is available 24/7.
+
+Of course, if you're stuck or need context beyond what's documented, just ask in the relevant channel - people are always happy to help. The goal isn't to make you figure everything out alone, it's to give you the fastest path to answers.
+
+## Slack Channels
+
+Below are a list of Slack channels you may find helpful:
+
+### Work-related channels
+
+-   `#ask-max` - Max has access to all of our documentation and our handbook, and is a great place to start with many questions
+-   `#content-docs-ideas` - for suggesting ideas for the newsletter, tutorials, and docs to be written by the content and docs team
+-   `#brand-mentions`
+-   `#do-more-weird`
+-   `#newsletters`
+-   `#team-blitzscale`
+-   `#dev`
+-   `#general`
+-   `#alerts`
+-   `#industry-news`
+-   `#changelog` - keep up with all the cool things we're shipping across the team
+
+### Social channels
+
+We encourage you to join and create channels focused around different types of hobbies and interests. We explicitly don't allow channels based on categories that we legally (and rightly!) can't discriminate against in the hiring process, such as gender, sex, political affiliation, religion, and age. 
+
+-   `#food`
+-   `#kids`
+-   `#no-context-posthog`
+-   `#random`
+-   `#whereintheworld`
+-   `#devel-random`
+-   `#books-and-films`
+-   `#climbing`
+-   `#coffee-snobs`
+-   `#dad-jokes`
+-   `#fitness`
+-   `#hoglife`
+-   `#rockets`
+-   `#stonks`
+-   `#cycling`
+-   `#listening-to`
+-   `#design-inspiration`
+
+### Location specific channels
+
+-   `#london`
+-   `#germany`
+-   `#sf-bay-area`
+    etc.

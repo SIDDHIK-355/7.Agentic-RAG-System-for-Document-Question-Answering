@@ -10,8 +10,11 @@ __pycache__/
 .DS_Store
 
 # Agent runtime state (memory, FAISS index, artifacts, sandbox)
+# The retrieval corpus (sandbox/papers/) IS committed; the rest of the
+# sandbox is runtime scratch created by agent runs.
 state/
-sandbox/
+My_Assignment/sandbox/*
+!My_Assignment/sandbox/papers/
 usage.json
 /memory.json
 /index_ids.json
