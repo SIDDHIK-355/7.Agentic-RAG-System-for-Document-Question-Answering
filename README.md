@@ -170,14 +170,14 @@ Follow the steps **in order**. Each step says what it does and how to check it w
 | 1 LLM API key | the agent's brain — Gemini **or** Groq **or** Cerebras, any one | free tier at each provider |
 | Tavily API key | web search tool | free tier at [tavily.com](https://tavily.com) |
 
-### ![STEP 1 — Clone the repo](https://img.shields.io/badge/STEP%201-CLONE%20THE%20REPO-2563eb?style=for-the-badge)
+### ![STEP 1 — Clone the repo](https://img.shields.io/badge/STEP%201-CLONE%20THE%20REPO-2563eb?style=for-the-badge&labelColor=000000)
 
 ```bash
 git clone https://github.com/SIDDHIK-355/7.Agentic-RAG-System-for-Document-Question-Answering.git
 cd 7.Agentic-RAG-System-for-Document-Question-Answering
 ```
 
-### ![STEP 2 — Install Python dependencies](https://img.shields.io/badge/STEP%202-INSTALL%20DEPENDENCIES-7c3aed?style=for-the-badge)
+### ![STEP 2 — Install Python dependencies](https://img.shields.io/badge/STEP%202-INSTALL%20DEPENDENCIES-7c3aed?style=for-the-badge&labelColor=000000)
 
 ```bash
 cd My_Assignment
@@ -186,7 +186,7 @@ uv sync
 
 ✅ *Check:* `uv run python -c "import faiss; print('ok')"` prints `ok`.
 
-### ![STEP 3 — Start Ollama and pull the embedding model](https://img.shields.io/badge/STEP%203-START%20OLLAMA%20%2B%20PULL%20MODEL-ea580c?style=for-the-badge)
+### ![STEP 3 — Start Ollama and pull the embedding model](https://img.shields.io/badge/STEP%203-START%20OLLAMA%20%2B%20PULL%20MODEL-ea580c?style=for-the-badge&labelColor=000000)
 
 ```bash
 ollama serve &                  # skip if Ollama is already running
@@ -195,7 +195,7 @@ ollama pull nomic-embed-text    # 768-dim embedding model (~270 MB)
 
 ✅ *Check:* `ollama list` shows `nomic-embed-text`.
 
-### ![STEP 4 — Add your API keys](https://img.shields.io/badge/STEP%204-ADD%20API%20KEYS%20(2%20FILES)-db2777?style=for-the-badge)
+### ![STEP 4 — Add your API keys](https://img.shields.io/badge/STEP%204-ADD%20API%20KEYS%20(2%20FILES)-db2777?style=for-the-badge&labelColor=000000)
 
 Real `.env` files are gitignored — only templates are committed, so you create yours from them:
 
@@ -204,7 +204,7 @@ cp ../.env.example ../.env      # gateway keys → open ../.env, paste ONE LLM k
 cp .env.example .env            # agent key   → open .env, paste TAVILY_API_KEY
 ```
 
-### ![STEP 5 — Build the knowledge-base index](https://img.shields.io/badge/STEP%205-BUILD%20THE%20INDEX%20(ONE%20TIME)-16a34a?style=for-the-badge)
+### ![STEP 5 — Build the knowledge-base index](https://img.shields.io/badge/STEP%205-BUILD%20THE%20INDEX%20(ONE%20TIME)-16a34a?style=for-the-badge&labelColor=000000)
 
 ```bash
 uv run index_corpus.py
@@ -214,7 +214,7 @@ This chunks all 76 handbook files, embeds each chunk with Ollama, and saves the 
 
 ✅ *Check:* the last line says `done: 76 files indexed (753 chunks)`.
 
-### ![STEP 6 — Ask your first questions](https://img.shields.io/badge/STEP%206-ASK%20YOUR%20FIRST%20QUESTIONS-0d9488?style=for-the-badge)
+### ![STEP 6 — Ask your first questions](https://img.shields.io/badge/STEP%206-ASK%20YOUR%20FIRST%20QUESTIONS-0d9488?style=for-the-badge&labelColor=000000)
 
 ```bash
 # basic agent check (uses web tools)
@@ -226,7 +226,7 @@ uv run agent7.py --no-web "What does GitLab mean by 'short toes', and what examp
 
 ✅ *Check:* the second answer mentions the CEO's own merge request being closed — a detail that only exists in the indexed corpus.
 
-### ![STEP 7 — Optional: run the tests](https://img.shields.io/badge/STEP%207-RUN%20TESTS%20(OPTIONAL)-64748b?style=for-the-badge)
+### ![STEP 7 — Optional: run the tests](https://img.shields.io/badge/STEP%207-RUN%20TESTS%20(OPTIONAL)-64748b?style=for-the-badge&labelColor=000000)
 
 ```bash
 uv run pytest test_mcp_server.py -v              # offline tests
@@ -234,7 +234,7 @@ uv run pytest test_mcp_server.py -v -m network   # tests needing web/API access
 uv run pytest test_mcp_server.py -v -m embed     # tests needing the embed endpoint
 ```
 
-### ![Troubleshooting](https://img.shields.io/badge/%F0%9F%9B%A0-IF%20SOMETHING%20GOES%20WRONG-dc2626?style=for-the-badge)
+### ![Troubleshooting](https://img.shields.io/badge/%F0%9F%9B%A0-IF%20SOMETHING%20GOES%20WRONG-dc2626?style=for-the-badge&labelColor=000000)
 
 | Symptom | Cause | Fix |
 |---|---|---|
